@@ -43,15 +43,34 @@ EXITS = [
 
 # Each axis keeps its disabled value first, so the all-first combination is the
 # unfiltered baseline.
+#
+# Sources for the axes added in the second pass:
+#   trend_ma_*          Tom Hougaard, "Trade Mentor - Trading Strategy": trade only
+#                       on the side of an 89-period MA, optionally requiring the MA
+#                       itself to point that way.
+#   min_break_*         Tom Hougaard, "Scalping the US opening minutes": he FADES the
+#                       bar that pokes one or two points beyond the prior bar's high.
+#                       Mirrored here as a minimum decisive break for our entries.
+#   min_body_to_range   both videos' "impulse / extension" requirement.
+#   min_break_bar_rvol  tomtrades, "Watch Me Backtest My 71% Win Rate Strategy":
+#                       enter only on a high-volume extension.
+#
+# vwap is dropped: the first sweep proved it inert. skip_weekdays is dropped on
+# purpose — it was what the first sweep's leaders were built on, and it has no
+# prior; leaving it in would just let the search rediscover the same artefact.
 FILTER_AXES = {
-    "rvol": ("min_or_rvol", [0.0, 0.8, 1.0, 1.2]),
-    "or_max": ("max_or_width_points", [0.0, 70.0, 100.0]),
-    "or_min": ("min_or_width_points", [0.0, 30.0]),
-    "gap_max": ("max_gap_points", [0.0, 40.0, 80.0]),
-    "or_dir": ("or_direction_filter", [False, True]),
-    "vwap": ("vwap_filter", [False, True]),
-    "skip_wd": ("skip_weekdays", [[], [0], [3], [4]]),
+    "trend_ma": ("trend_ma_period", [0, 89, 200]),
+    "ma_slope": ("trend_ma_require_slope", [False, True]),
+    "brk_rvol": ("min_break_bar_rvol", [0.0, 1.0, 1.2]),
+    "brk_pts": ("min_break_points", [0.0, 5.0, 10.0]),
+    "brk_frac": ("min_break_or_frac", [0.0, 0.1, 0.2]),
+    "body": ("min_body_to_range", [0.5, 0.0, 0.6]),
+    "rvol": ("min_or_rvol", [0.0, 1.0]),
+    "or_max": ("max_or_width_points", [0.0, 70.0]),
 }
+
+# Axes that live on cfg.strategy.confirmation rather than cfg.strategy.filters.
+CONFIRMATION_FIELDS = {"min_break_points", "min_break_or_frac", "min_body_to_range"}
 
 _CTX: dict = {}
 
@@ -69,7 +88,8 @@ def _variant(cfg: AppConfig, exit_kw: dict, filt_kw: dict) -> AppConfig:
     for k, v in exit_kw.items():
         setattr(c.strategy.targets, k, v)
     for k, v in filt_kw.items():
-        setattr(c.strategy.filters, k, v)
+        target = c.strategy.confirmation if k in CONFIRMATION_FIELDS else c.strategy.filters
+        setattr(target, k, v)
     return c
 
 
