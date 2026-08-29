@@ -1,0 +1,78 @@
+===== SWEEP v2: FILTERS DERIVED FROM VIDEO SOURCES =====
+Data:  GER40 @ FundingPips-SIM1, M5, 2025-08-22..2026-08-28 (258 sessions)
+Grid:  7 exits x 1944 filter combinations = 13,608 backtests (tools/sweep.py)
+Split: in-sample < 2026-05-01 | out-of-sample >= 2026-05-01
+
+Sources: Tom Hougaard (Trader Tom) - 'Scalping the US opening minutes',
+         'Trade Mentor Pt 12'; tomtrades - 'Backtest My 71% Win Rate Strategy';
+         Cryptology Key - 'Open Range NASDAQ'.
+
+--- A. ONE FILTER AT A TIME (expectancy R, whole period) ---
+exit           trades  fixed_1.0R  fixed_1.5R  fixed_2.0R  trail_0.5/0.25  trail_0.5/0.5  trail_0.5/1.0  trail_1.0/0.5
+filters                                                                                                               
+brk_frac=0.2      116       0.022       0.088       0.029          -0.008         -0.044         -0.060         -0.011
+rvol=1.0          120      -0.006      -0.062      -0.137          -0.034         -0.070         -0.109         -0.134
+trend_ma=89       180      -0.022      -0.020      -0.072          -0.067         -0.097         -0.099         -0.100
+brk_pts=10.0      120      -0.028       0.052       0.002          -0.025         -0.059         -0.074         -0.056
+body=0.0          284      -0.046      -0.036      -0.102          -0.097         -0.112         -0.111         -0.136
+trend_ma=200      181      -0.051      -0.041      -0.094          -0.079         -0.111         -0.121         -0.145
+body=0.6          197      -0.066      -0.081      -0.114          -0.110         -0.132         -0.143         -0.158
+or_max=70.0       183      -0.085      -0.132      -0.164          -0.141         -0.168         -0.181         -0.189
+ma_slope=True     229      -0.086      -0.093      -0.141          -0.118         -0.144         -0.153         -0.176
+none              229      -0.086      -0.093      -0.141          -0.118         -0.144         -0.153         -0.176
+brk_pts=5.0       179      -0.110      -0.066      -0.103          -0.099         -0.128         -0.139         -0.154
+brk_frac=0.1      173      -0.114      -0.074      -0.114          -0.111         -0.138         -0.135         -0.143
+brk_rvol=1.2       65      -0.162      -0.079      -0.153          -0.076         -0.087         -0.076         -0.089
+brk_rvol=1.0       89      -0.237      -0.198      -0.256          -0.136         -0.159         -0.167         -0.216
+
+brk_frac  = confirmation.min_break_or_frac  (close must clear the OR edge by
+            this fraction of OR width)  <- Hougaard fades marginal breaks
+trend_ma  = filters.trend_ma_period         <- Hougaard's 89-period MA
+brk_rvol  = filters.min_break_bar_rvol      <- tomtrades' high-volume extension
+
+--- B. THE ONE THAT WORKS: min_break_or_frac, parameter stability ---
+Fine sweep, filter applied ALONE (no combination, no search):
+
+  frac    RR     n     WR     PF     allR    isN      isR   oosN     oosR
+  0.00   1.0   229  46.7%  0.84   -0.086   151   -0.070    78   -0.116
+  0.10   1.0   173  46.2%  0.79   -0.114   116   -0.146    57   -0.048
+  0.15   1.0   139  49.6%  0.90   -0.050    97   -0.077    42   +0.013
+  0.20   1.0   116  53.4%  1.05   +0.022    82   -0.002    34   +0.081
+  0.30   1.0    80  56.2%  1.12   +0.055    58   +0.025    22   +0.133
+  0.40   1.0    60  60.0%  1.31   +0.128    41   +0.166    19   +0.046
+  0.00   1.5   229  38.4%  0.85   -0.093   151   -0.106    78   -0.068
+  0.10   1.5   173  39.9%  0.88   -0.074   116   -0.118    57   +0.016
+  0.15   1.5   139  43.2%  0.99   -0.003    97   -0.069    42   +0.149
+  0.20   1.5   116  47.4%  1.17   +0.088    82   +0.039    34   +0.204
+  0.30   1.5    80  50.0%  1.27   +0.131    58   +0.052    22   +0.338
+  0.40   1.5    60  51.7%  1.39   +0.184    41   +0.163    19   +0.231
+
+Monotone in the parameter, and in-sample and out-of-sample improve together.
+Average 1R distance grows only 74.7 -> 79.4 -> 80.7 points, so this is not
+simply a rescaling of R.
+
+Quarter by quarter, fixed 1.5R (expectancy R / trades):
+  quarter    baseline        frac 0.20       frac 0.30
+  2025Q3   -0.247 (27)     -0.058 (14)     -0.107 (12)
+  2025Q4   -0.241 (53)     -0.193 (29)     -0.137 (21)
+  2026Q1   +0.035 (58)     +0.290 (31)     +0.297 (21)
+  2026Q2   +0.215 (50)     +0.291 (26)     +0.564 (16)
+  2026Q3   -0.356 (41)     -0.001 (16)     -0.065 (10)
+
+Every quarter improves. Three of five are still negative: this is a
+consistent improvement, not a consistent profit.
+
+--- C. THE GRID AS A WHOLE IS STILL NOISE ---
+IS->OOS correlation: Pearson -0.090, Spearman -0.083   <- NEGATIVE
+positive IS 19.4% | positive OOS 66.8% | both 12.2% | expected 13.0%
+Ranking by in-sample carries no forward information in this grid -- slightly
+worse than none. The break-size result above survives BECAUSE it was not
+picked by the ranking: it works alone, monotonically, in every quarter.
+
+--- D. WHAT DID NOT TRANSFER ---
+min_break_bar_rvol makes every exit worse (-0.16..-0.24R vs -0.086R baseline).
+Coherent with the source: tomtrades uses a high-volume extension to identify
+exhaustion he then FADES, while our system buys the same bar as continuation.
+trend_ma=89 improves the baseline (-0.086 -> -0.022R over 180 trades) but does
+not reach profitability, and its slope rule adds nothing.
+=========================================================
