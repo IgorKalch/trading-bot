@@ -1,0 +1,83 @@
+========== EXHAUSTIVE EXIT x FILTER SWEEP ==========
+Data:  GER40 @ FundingPips-SIM1, M5, 2025-08-22..2026-08-28 (258 sessions)
+Costs: spread 2.0 + slippage 1.0 index points.  Balance 10,000 USD, risk 1%.
+Grid:  7 exits x 1152 filter combinations = 8064 backtests (tools/sweep.py)
+Split: in-sample  < 2026-05-01 | out-of-sample >= 2026-05-01
+
+Axes: min_or_rvol [0/0.8/1.0/1.2]  max_or_width [0/70/100]  min_or_width [0/30]
+      max_gap [0/40/80]  or_direction [off/on]  vwap [off/on]  skip_weekdays [-/Mon/Thu/Fri]
+
+--- A. ONE FILTER AT A TIME: expectancy in R, whole period ---
+exit          fixed_1.0R  fixed_1.5R  fixed_2.0R  trail_0.5/0.25  trail_0.5/0.5  trail_0.5/1.0  trail_1.0/0.5
+filters                                                                                                      
+rvol=1.2           0.024       0.170      -0.036          -0.004         -0.001         -0.052         -0.043
+rvol=1.0          -0.006      -0.062      -0.137          -0.034         -0.070         -0.109         -0.134
+skip_wd=[3]       -0.064      -0.118      -0.176          -0.118         -0.136         -0.145         -0.176
+skip_wd=[0]       -0.070      -0.049      -0.094          -0.093         -0.120         -0.131         -0.154
+rvol=0.8          -0.077      -0.115      -0.153          -0.103         -0.139         -0.134         -0.183
+or_min=30.0       -0.079      -0.084      -0.119          -0.110         -0.135         -0.144         -0.159
+or_max=100.0      -0.083      -0.098      -0.149          -0.129         -0.157         -0.166         -0.183
+or_max=70.0       -0.085      -0.132      -0.164          -0.141         -0.168         -0.181         -0.189
+vwap=True         -0.086      -0.093      -0.141          -0.118         -0.144         -0.153         -0.176
+none              -0.086      -0.093      -0.141          -0.118         -0.144         -0.153         -0.176
+skip_wd=[4]       -0.096      -0.093      -0.131          -0.131         -0.171         -0.172         -0.161
+gap_max=80.0      -0.108      -0.048      -0.079          -0.172         -0.177         -0.155         -0.140
+or_dir=True       -0.112      -0.063      -0.078          -0.124         -0.142         -0.115         -0.155
+gap_max=40.0      -0.188      -0.158      -0.227          -0.273         -0.297         -0.284         -0.268
+
+Trade counts: none=229  rvol0.8=201  rvol1.0=120  rvol1.2=38  or_max70=183
+Only two cells in the entire table are positive, both driven by RVOL.
+
+--- B. TOP 10 BY IN-SAMPLE EXPECTANCY, TRACKED OUT-OF-SAMPLE ---
+      exit                                                 filters  is_n  is_exp  oos_n  oos_exp
+fixed_1.0R            rvol=1.0+or_max=70.0+or_min=30.0+skip_wd=[3]    47   0.184     18    0.076
+fixed_1.0R  rvol=1.0+or_max=70.0+or_min=30.0+vwap=True+skip_wd=[3]    47   0.184     18    0.076
+fixed_1.0R                        rvol=1.0+or_max=70.0+skip_wd=[3]    49   0.175     18    0.076
+fixed_1.0R              rvol=1.0+or_max=70.0+vwap=True+skip_wd=[3]    49   0.175     18    0.076
+fixed_1.0R                        rvol=1.0+or_min=30.0+skip_wd=[3]    62   0.128     23    0.101
+fixed_1.0R              rvol=1.0+or_min=30.0+vwap=True+skip_wd=[3]    62   0.128     23    0.101
+fixed_1.0R           rvol=1.0+or_max=100.0+or_min=30.0+skip_wd=[3]    62   0.128     21    0.016
+fixed_1.0R rvol=1.0+or_max=100.0+or_min=30.0+vwap=True+skip_wd=[3]    62   0.128     21    0.016
+fixed_1.0R                                    rvol=1.0+skip_wd=[3]    64   0.123     23    0.101
+fixed_1.0R                          rvol=1.0+vwap=True+skip_wd=[3]    64   0.123     23    0.101
+
+All 10 contain skip_weekdays=[Thu].  Removing the inert vwap axis leaves
+5 distinct rows, and effectively 2 hypotheses -- not 10 confirmations.
+
+--- C. DOES IN-SAMPLE PREDICT OUT-OF-SAMPLE? (3248 combos) ---
+Pearson  r = +0.171
+Spearman r = +0.079
+  top- 10 by IS: IS +0.147R -> OOS +0.074R | OOS>0:  10/10 | others OOS -0.109R
+  top- 25 by IS: IS +0.118R -> OOS +0.035R | OOS>0:  19/25 | others OOS -0.109R
+  top- 50 by IS: IS +0.082R -> OOS -0.018R | OOS>0:  28/50 | others OOS -0.109R
+  top-100 by IS: IS +0.049R -> OOS -0.045R | OOS>0:  38/100 | others OOS -0.110R
+
+positive in-sample        3.2%
+positive out-of-sample   21.6%
+positive in BOTH          1.2%
+expected if independent   0.7%   <- 1.2% vs 0.7% is the same order
+
+--- D. THE COMBOS THAT HAVE A DOCUMENTED PRIOR (RVOL 7.4, OR width 7.2) ---
+      exit              filters  all_n  all_wr  all_pf  all_exp  is_exp  oos_n  oos_exp
+fixed_1.0R             rvol=1.0    120  50.000   0.988   -0.006   0.030     35   -0.092
+fixed_1.5R             rvol=1.0    120  38.333   0.894   -0.062  -0.048     35   -0.095
+fixed_1.0R rvol=1.0+or_max=70.0     90  53.333   1.057    0.028   0.086     28   -0.102
+fixed_1.5R rvol=1.0+or_max=70.0     90  37.778   0.829   -0.104  -0.079     28   -0.160
+fixed_1.0R             rvol=1.2     38  50.000   1.051    0.024   0.123      5   -0.626
+fixed_1.5R             rvol=1.2     38  44.737   1.348    0.170   0.276      5   -0.526
+
+Every one of them is negative out-of-sample. rvol=1.2 at 1.5R is the best
+single cell of the whole sweep (+0.170R) and collapses to -0.526R on the 5
+out-of-sample trades it produces.
+
+--- E. VERDICT ---
+The sweep produced no configuration that can be defended. The only rows that
+survived out-of-sample are built on skipping Thursdays -- a filter with no
+prior, chosen by the search itself -- while every filter that carries
+independent published evidence fails out-of-sample.
+
+Note: the vwap axis is inert. With vwap_filter=True the engine logs zero
+'vwap' skips across all 258 sessions: a confirmed breakout beyond the opening
+range is on the correct side of a session VWAP that the range itself
+dominates. Every vwap=True row is a duplicate of its vwap=False twin.
+====================================================
