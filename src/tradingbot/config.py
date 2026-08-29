@@ -94,6 +94,11 @@ class FiltersConfig(BaseModel):
     # opening spike dominates and every later bar scores below 1.0.
     min_break_bar_rvol: float = 0.0
     break_rvol_lookback_bars: int = 12
+    # §7.11 Imbalance (smart-money FVG): demand a three-bar gap in the trade
+    # direction within the last N bars. False = off.
+    require_fvg: bool = False
+    fvg_max_age_bars: int = 12
+    fvg_min_size_points: float = 0.0
     # Weekdays to skip entirely: 0=Mon .. 4=Fri.
     skip_weekdays: list[int] = Field(default_factory=list)
     # Live entry sanity: skip entry if current spread wider than this.
@@ -131,6 +136,23 @@ class RetestConfig(BaseModel):
     max_positions_per_day: int = 2
 
 
+class SweepConfig(BaseModel):
+    """Overnight-range liquidity sweep (Додаток Ж). strategy.name = sweep."""
+
+    min_pre_bars: int = 30  # skip the day if the overnight session is too thin
+    min_sweep_points: float = 0.0  # how far past the edge counts as a sweep
+    min_sweep_range_frac: float = 0.0  # ... or as a fraction of the range width
+    max_reclaim_bars: int = 6  # give up if price does not come back inside
+    require_body_close: bool = True  # the reclaim bar must close directionally
+    require_fvg: bool = False  # demand an imbalance in the trade direction
+    fvg_max_age_bars: int = 12
+    fvg_min_size_points: float = 0.0
+    stop_buffer_points: float = 2.0  # beyond the sweep extreme
+    min_stop_points: float = 0.0
+    max_stop_points: float = 0.0
+    max_positions_per_day: int = 2
+
+
 class StrategyConfig(BaseModel):
     name: str = "orb"
     timeframe: str = "M5"
@@ -140,6 +162,7 @@ class StrategyConfig(BaseModel):
     stops: StopsConfig = StopsConfig()
     targets: TargetsConfig = TargetsConfig()
     retest: RetestConfig = RetestConfig()
+    sweep: SweepConfig = SweepConfig()
 
 
 class RiskConfig(BaseModel):

@@ -36,6 +36,7 @@ from tradingbot.core.models import (
     TpMode,
 )
 from tradingbot.strategy.base import DayContext
+from tradingbot.strategy.imbalance import FvgTracker
 
 _TF_MINUTES = {"M1": 1, "M5": 5, "M15": 15, "M30": 30}
 
@@ -66,6 +67,7 @@ class _DayState:
     day_skipped: str | None = None
     signals_emitted: int = 0
     sides: dict[Side, _SideState] = field(default_factory=dict)
+    fvg: FvgTracker = field(default_factory=FvgTracker)
 
 
 class RetestStrategy:
@@ -92,6 +94,8 @@ class RetestStrategy:
         s = st.ctx.session
         if bar.time < s.session_open or st.day_skipped:
             return []
+
+        st.fvg.update(bar)  # §7.11
 
         # -- opening range: same definition as the ORB model (§2)
         if bar.time < s.or_end:
@@ -237,6 +241,8 @@ class RetestStrategy:
             return done("stop_size", f"stop distance {risk_points:.1f} < min {r.min_stop_points}")
 
         f = cfg.filters
+        if f.require_fvg and st.fvg.recent(side, f.fvg_max_age_bars, f.fvg_min_size_points) is None:
+            return done("no_fvg", "no imbalance in the trade direction")  # §7.11
         if f.news_filter_enabled:
             entry_time = bar.time + timedelta(minutes=_TF_MINUTES.get(cfg.timeframe, 5))
             event = st.ctx.news.blocking_event(

@@ -32,6 +32,7 @@ from tradingbot.core.models import (
     TpMode,
 )
 from tradingbot.strategy.base import DayContext
+from tradingbot.strategy.imbalance import FvgTracker
 
 log = logging.getLogger(__name__)
 
@@ -58,6 +59,8 @@ class _DayState:
     # rolling bar volumes for the breakout-candle volume filter (§7.10)
     recent_vols: deque[float] = field(default_factory=deque)
     bar_rvol: float | None = None  # current bar's volume / recent average
+    # three-bar imbalance tracker for the FVG filter (§7.11)
+    fvg: FvgTracker = field(default_factory=FvgTracker)
 
 
 class OrbStrategy:
@@ -87,6 +90,8 @@ class OrbStrategy:
 
         if bar.time < s.session_open or st.day_skipped:
             return events
+
+        st.fvg.update(bar)  # §7.11
 
         # -- VWAP accumulation over the whole session (§7.6)
         typical = (bar.high + bar.low + bar.close) / 3.0
@@ -289,6 +294,8 @@ class OrbStrategy:
             )
             if slope_bad:
                 return skip("trend_ma", f"MA{f.trend_ma_period} slope is against the breakout")
+        if f.require_fvg and st.fvg.recent(side, f.fvg_max_age_bars, f.fvg_min_size_points) is None:
+            return skip("no_fvg", "no imbalance in the breakout direction")  # §7.11
         if f.news_filter_enabled:
             # The actual entry happens at the NEXT bar open = this bar's close
             # time, so the blackout window is tested at entry time (§7.1).

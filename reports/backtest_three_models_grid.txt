@@ -1,0 +1,70 @@
+===== THREE MODELS, NINE EXITS, 943 SESSIONS =====
+
+Data:  Dukascopy DEUIDXEUR, 2023-01-02 .. 2026-08-28, 943 sessions.
+Costs: spread 1.25 (measured at FTMO) + slippage 1.0.
+Grid:  11 variants x 9 exits = 99 backtests (tools/grid.py).
+
+New in this round, from the material supplied:
+  * imbalance / FVG filter (strategy/imbalance.py) - the three-bar gap of the
+    smart-money book, wired into ORB and the retest model as filters.require_fvg
+    and into the sweep model as sweep.require_fvg;
+  * a third strategy, sweep (strategy/sweep.py): the overnight range from the
+    TradingView layouts is swept, price closes back inside, and the entry is
+    AGAINST the sweep. The first fade model here - both earlier ones continue.
+
+--- A. EXPECTANCY IN R ---
+exit               n  fixed 1.0R  fixed 1.5R  fixed 2.0R  trail 0.5/0.25  trail 0.5/0.5  trail 0.5/1.0  trail 1.0/0.5  trail 1.0/1.0  trail 1.5/0.5
+variant                                                                                                                                            
+orb              809      -0.067      -0.050      -0.081          -0.073         -0.072         -0.065         -0.072         -0.061         -0.065
+orb +break0.2    420      -0.043      -0.017      -0.040          -0.054         -0.040         -0.029         -0.031         -0.007         -0.002
+orb +fvg         428      -0.079      -0.057      -0.055          -0.058         -0.040         -0.025         -0.008          0.008          0.005
+retest pb3       253      -0.147      -0.073       0.002          -0.149         -0.136         -0.148         -0.049         -0.024         -0.017
+retest pb3 +fvg  237      -0.136      -0.071      -0.003          -0.145         -0.127         -0.131         -0.024          0.005          0.011
+retest pb6       445      -0.114      -0.084      -0.028          -0.116         -0.120         -0.113         -0.067         -0.049         -0.024
+sweep M1         951      -0.185      -0.240      -0.252          -0.226         -0.220         -0.230         -0.269         -0.278         -0.278
+sweep M1 +fvg    471      -0.146      -0.203      -0.208          -0.179         -0.150         -0.164         -0.208         -0.239         -0.184
+sweep M5         841      -0.128      -0.114      -0.127          -0.143         -0.143         -0.131         -0.159         -0.141         -0.136
+sweep M5 +fvg    402      -0.151      -0.168      -0.205          -0.199         -0.215         -0.201         -0.220         -0.207         -0.268
+sweep M5 deep    725      -0.128      -0.113      -0.116          -0.117         -0.122         -0.107         -0.145         -0.138         -0.141
+
+--- B. WHAT THE GRID SAYS ---
+  positive cells:                              5 of 99
+  cells whose 95% interval is above zero:      0
+  cells whose 95% interval is below zero:      52
+
+The five positive cells sit between +0.002R and +0.011R with standard errors
+of 0.07 to 0.14 - they are zero with extra steps. Fifty-two cells are
+significantly negative.
+
+--- C. NO RAW EDGE ANYWHERE, EITHER ---
+Same grid with costs removed entirely:
+  positive cells:                              53 of 99
+  cells whose 95% interval is above zero:      0
+  best cell: retest pb3 +fvg / trail 1.0/1.0, +0.148R +- 0.121 (n=237),
+  interval -0.091 .. +0.389.
+
+Not one of ninety-nine configurations shows an edge that survives its own
+error bar, even when trading is free.
+
+--- D. THE COST STRUCTURE IS THE REAL LESSON ---
+Average cost per trade, in R, by model:
+  orb (stop = full opening range, ~75 pts)        0.067R
+  sweep M5 (stop beyond the sweep, ~40 pts)       0.113-0.118R
+  retest / sweep M1 (stop ~25-30 pts)             0.157-0.180R
+
+Every tightening of the stop that makes a model look attractive on paper
+multiplies what the spread takes. A model on 27-point stops must find more
+than 0.16R of edge per trade before it breaks even - and 0.16R is roughly the
+size of the largest raw effect anything here produced, with an error bar
+wider than the effect.
+
+--- E. WHAT THIS ROUND ADDS TO THE VERDICT ---
+Continuation fails (ORB, retest). Fade fails too (sweep), and fails harder:
+-0.11R to -0.28R across every exit. The imbalance filter moves cells by a few
+hundredths of an R in both directions, which is what a filter does when there
+is nothing to filter.
+
+Three model families, nine exit schemes, three data sources, four years.
+The opening range of the DAX does not carry a tradeable edge in any of the
+forms tested - as a breakout, as a pullback entry, or as a fade.
+==================================================
