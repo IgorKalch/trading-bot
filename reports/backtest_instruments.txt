@@ -87,4 +87,35 @@ return falls to about 5.5% a year - real, but not a fast route to anything.
 
 Next, in order: NQ futures data from a real futures feed; forward test in
 signal mode; only then anything with money in it.
+
+--- G. PARAMETER STABILITY ON NQ: A PLATEAU, NOT A SPIKE ---
+retest, fixed 1R, futures costs. Every row is positive.
+
+  pullback window   2:+0.050  3:+0.066  4:+0.106  5:+0.116  6:+0.096
+                    8:+0.069 10:+0.061 12:+0.069 15:+0.051 20:+0.043
+  stop buffer     0.0:+0.086  1:+0.096  2:+0.096  5:+0.098  10:+0.104
+  fixed RR        0.5:+0.036 0.75:+0.037 1.0:+0.096 1.25:+0.117
+                  1.5:+0.081  2.0:+0.103
+
+Positive across the entire range of all three parameters, with smooth curves
+rather than isolated peaks. That is the opposite of what min_break_or_frac did
+on the DAX holdout, where the ranking inverted - and note that the same filter
+is actively harmful here (frac 0.2 takes NQ from +0.096R to -0.159R), which is
+consistent with it having been noise all along.
+
+--- H. ON NQ, EVEN ORB COMES BACK FROM THE DEAD ---
+The model closed as edgeless on the DAX, run on NQ at futures costs (n=771):
+
+  exit             WR     PF     expR    +-SE      IS -> OOS
+  fixed 1.0R     52.1%   1.07   +0.033   0.034   +0.032 -> +0.033
+  fixed 2.0R     42.3%   1.11   +0.061   0.045   +0.066 -> +0.054
+  trail 1.5/0.5  40.7%   1.19   +0.097   0.051   +0.127 -> +0.055
+  trail 1.0/1.0  35.4%   1.14   +0.067   0.048   +0.083 -> +0.045
+
+Every interval still contains zero, so this is not a claim that ORB works. What
+it does say is that the instrument, not the model, was the binding constraint:
+the same rules that lose 0.067R per trade on DAX CFDs make 0.033R on NQ futures,
+and the difference is almost exactly the difference in cost per R.
+
 =========================================================
+
