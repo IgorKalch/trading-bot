@@ -1,0 +1,58 @@
+===== RETEST-AND-ABSORB MODEL: FIRST RESULTS =====
+Model:  strategy.name = retest (STRATEGY.md Додаток В)
+Symbol: GER40 @ FundingPips-SIM1.  Balance 10,000 USD, risk 1%.
+
+--- A. ON M5, THE WHOLE YEAR (2025-08-22..2026-08-28, 258 sessions) ---
+    RR     n      WR     PF     expR    isR     oosR   avg1R
+   0.5   153   59.5%   0.71   -0.120  -0.225  +0.072    60.9
+   1.0   153   41.8%   0.68   -0.194  -0.271  -0.054    60.9
+   1.5   153   34.6%   0.71   -0.193  -0.283  -0.029    60.9
+   2.0   153   27.5%   0.64   -0.267  -0.277  -0.248    60.9
+
+Worse than ORB, and the reason is visible in the last column: on M5 the
+pullback extreme lands 61 points away, barely tighter than ORB's 75. The
+source runs this on M1 and expects the whole sequence inside ~3 minutes, so
+M5 is not a test of their model but of a coarse imitation of it.
+
+--- B. ON M1 (2026-05-18..2026-08-28, 75 sessions - broker caps M1 history
+    at 100,000 bars) ---
+  maxPB     n      WR     PF     expR   avg1R
+      3    22   50.0%   0.92   -0.043    24.0
+      6    38   50.0%   0.92   -0.041    27.3
+     10    55   43.6%   0.72   -0.169    29.7
+     15    64   46.9%   0.82   -0.101    32.3
+     25    68   47.1%   0.83   -0.096    33.7
+
+1R now sits at 24-34 points, as intended. Still negative on real costs.
+
+--- C. THE RESULT THAT MATTERS: COST DECOMPOSITION (M1, maxPB 6, 1R) ---
+  costs                        n      WR     PF     expR
+  real (spread 2.0 + slip 1.0)  38   50.0%   0.92   -0.041
+  spread 1.0 + slip 0.5         38   50.0%   0.96   -0.020
+  zero costs                    38   57.9%   1.38   +0.158
+
+  ORB on M5, same treatment, whole year:
+  real                         229   46.7%   0.84   -0.086
+  zero costs                   229   50.2%   0.98   -0.007
+
+This is a different KIND of failure. ORB has no edge to lose: at zero cost it
+is a coin flip, PF 0.98. The retest model at zero cost is PF 1.38 with a 57.9%
+win rate at 1R — there is a real edge in the raw signal, and transaction costs
+consume all of it, because 3 points of spread and slippage are 11% of a
+27-point R.
+
+That is exactly the problem Hougaard spends half his video on: he picks a
+broker at 0.4 spread on the FTSE precisely because scalping on a 2-point
+spread means starting every trade far behind.
+
+--- D. WHAT THIS DOES NOT ESTABLISH ---
+38 trades over 75 sessions. The standard error on expectancy here is around
+0.16R, which is the size of the whole zero-cost effect. This is a lead worth
+chasing, not a result. It needs, in order:
+  1. the real session spread on GER40, measured with the market open;
+  2. more M1 history than this broker will give (another data source);
+  3. an out-of-sample split, impossible on 3.5 months.
+A floor on 1R (min_stop_points 25) lifts real-cost expectancy to +0.101R on
+16 trades, which is far too few to mean anything and is listed only so the
+next person does not rediscover it and get excited.
+==================================================
