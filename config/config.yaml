@@ -13,8 +13,8 @@ mt5:
   symbol: GER40           # звір назву в Market Watch: GER40 / DE40 / GER40.cash ...
   server_timezone: eet_us_dst  # GMT+2/+3 за календарем DST США (стандарт MT5-брокерів)
                                # альтернативи: "Europe/Kyiv" або "fixed:+03:00"
-  deviation_points: 100   # доп. прослизання маркет-ордерів у БРОКЕРСЬКИХ пунктах
-                          # (point=0.1 -> 100 = 10 пунктів індексу)
+  deviation_points: 500   # доп. прослизання маркет-ордерів у БРОКЕРСЬКИХ пунктах
+                          # FundingPips GER40: point=0.01 -> 500 = 5.0 пунктів індексу
 
 telegram:
   enabled: true
@@ -74,7 +74,7 @@ strategy:
 risk:                     # §13
   risk_per_trade_pct: 1.0
   min_volume_fallback: false
-  max_volume_lots: 20.0   # Funding Pips: 20 лотів/клік
+  max_volume_lots: 10.0   # = symbol_info.volume_max для GER40 на FundingPips-SIM1
 
 prop:                     # §14 — звір зі СВОЄЮ моделлю рахунку Funding Pips!
   enabled: true
@@ -82,7 +82,7 @@ prop:                     # §14 — звір зі СВОЄЮ моделлю р�
   daily_loss_buffer_pct: 1.5     # бот зупиняється на (5.0-1.5)=3.5%
   max_drawdown_pct: 10.0         # Standard; 1-Step/Pro = 6.0, Flex = 12.0
   max_drawdown_buffer_pct: 2.0
-  initial_balance: 0             # 0 = зафіксувати баланс при першому запуску
+  initial_balance: 10000        # 2-Step Standard 10k: база просадки — ПОЧАТКОВА сума, не поточний баланс
   restrict_news_trading: true
   news_window_before_min: 5
   news_window_after_min: 5
@@ -94,12 +94,12 @@ backtest:
   data_dir: data/cache
   reports_dir: reports
   news_csv: data/news/calendar.csv
-  initial_balance: 100000
-  spread_points: 2.0      # заміряй реальний спред GER40 у своєї фірми!
+  initial_balance: 10000  # масштаб реального рахунку — інакше бектест не побачить відмов по мін.лоту
+  spread_points: 2.0      # вимір на ЗАКРИТОМУ ринку — переміряти в сесію!
   slippage_points: 1.0
   commission_per_lot: 0.0 # Funding Pips: індекси без комісії
   pessimistic_same_bar: true
-  point_value_per_lot: 1.0
+  point_value_per_lot: 28.95  # GER40: contract 25 EUR/пункт; tick_value 0.28953 USD при tick 0.01
   volume_min: 0.01
   volume_step: 0.01
-  volume_max: 20.0
+  volume_max: 10.0

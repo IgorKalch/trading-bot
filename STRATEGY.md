@@ -259,7 +259,7 @@ k=0 → беззбиток (+ breakeven_buffer_points, якщо задано)
 | Ризик на угоду, % від балансу | **1.0%** | `risk.risk_per_trade_pct` |
 | Обсяг: `lots = ризик_$ / (SL_дистанція/tick_size · tick_value)`, округлення **вниз** до `volume_step` | — | `risk/position_sizing.py` |
 | Якщо розрахований лот < мінімального — пропуск (або мін. лот) | пропуск | `risk.min_volume_fallback` |
-| Кап обсягу (Funding Pips: 20 лотів/клік) | 20 | `risk.max_volume_lots` |
+| Кап обсягу (менше з двох: 20 лотів/клік у фірми та `symbol_info.volume_max`, на SIM1 = 10) | 10 | `risk.max_volume_lots` |
 
 Калібрування ризику від макс. серії збитків (першоджерело, під 10% max DD пропа):
 
