@@ -109,7 +109,7 @@ backtest:
   reports_dir: reports
   news_csv: data/news/calendar.csv
   initial_balance: 10000  # масштаб реального рахунку — інакше бектест не побачить відмов по мін.лоту
-  spread_points: 2.0      # ПЛЕЙСХОЛДЕР: ринок був закритий, переміряти в сесію
+  spread_points: 1.25      # ВИМІРЯНО: середнє за 6370 барів у вікні входу 09:05-11:00 за рік
   slippage_points: 1.0
   commission_per_lot: 0.0 # Funding Pips: індекси без комісії
   pessimistic_same_bar: true
