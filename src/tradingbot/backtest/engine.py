@@ -17,6 +17,7 @@ Execution model (documented in STRATEGY.md §15 / config `backtest.*`):
 from __future__ import annotations
 
 import logging
+from bisect import bisect_left
 from dataclasses import dataclass
 from datetime import date, datetime
 from zoneinfo import ZoneInfo
@@ -108,6 +109,9 @@ class BacktestEngine:
         schedule = _session_schedule(cfg)
         tz = ZoneInfo(cfg.session.timezone)
         days = self._group_by_day(bars, tz)
+        # Flat series for the pre-session trend MA (§7.9); bars are already sorted.
+        ma_times = [b.time for b in bars]
+        ma_closes = [b.close for b in bars]
 
         balance = cfg.backtest.initial_balance
         trades: list[TradeRecord] = []
@@ -129,6 +133,9 @@ class BacktestEngine:
                     or_volumes, cfg.strategy.filters.rvol_lookback_days
                 ),
                 news=self.news,
+            )
+            ctx.trend_ma, ctx.trend_ma_prev = self._trend_ma(
+                ma_times, ma_closes, session.session_open, cfg.strategy.filters.trend_ma_period
             )
             self.strategy.on_day_start(ctx)
 
@@ -353,6 +360,24 @@ class BacktestEngine:
         window = session_ranges[-period:]
         trs = [max(hi - lo, abs(hi - pc), abs(lo - pc)) for hi, lo, pc in window]
         return sum(trs) / len(trs)
+
+    @staticmethod
+    def _trend_ma(
+        times: list[datetime], closes: list[float], session_open: datetime, period: int
+    ) -> tuple[float | None, float | None]:
+        """MA of the `period` closes preceding the session open, and one bar earlier.
+
+        Uses only bars strictly before the open, so the value is knowable at the
+        moment the session starts and carries no look-ahead.
+        """
+        if period <= 0:
+            return None, None
+        end = bisect_left(times, session_open)
+        if end < period + 1:
+            return None, None
+        ma = sum(closes[end - period : end]) / period
+        ma_prev = sum(closes[end - period - 1 : end - 1]) / period
+        return ma, ma_prev
 
     @staticmethod
     def _avg_or_volume(or_volumes: list[float], lookback: int) -> float | None:

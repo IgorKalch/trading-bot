@@ -13,6 +13,7 @@ Day lifecycle (state machine):
 from __future__ import annotations
 
 import logging
+from collections import deque
 from dataclasses import dataclass, field
 from datetime import timedelta
 
@@ -54,6 +55,9 @@ class _DayState:
     # session VWAP accumulators (§7.6)
     vwap_pv: float = 0.0
     vwap_vol: float = 0.0
+    # rolling bar volumes for the breakout-candle volume filter (§7.10)
+    recent_vols: deque[float] = field(default_factory=deque)
+    bar_rvol: float | None = None  # current bar's volume / recent average
 
 
 class OrbStrategy:
@@ -88,6 +92,18 @@ class OrbStrategy:
         typical = (bar.high + bar.low + bar.close) / 3.0
         st.vwap_pv += typical * max(bar.tick_volume, 1)
         st.vwap_vol += max(bar.tick_volume, 1)
+
+        # -- relative volume of THIS bar vs the recent ones (§7.10). Measured
+        # before the bar is folded in, so a bar is never compared to itself.
+        lookback = max(self.cfg.filters.break_rvol_lookback_bars, 1)
+        st.bar_rvol = (
+            bar.tick_volume / (sum(st.recent_vols) / len(st.recent_vols))
+            if len(st.recent_vols) >= 2
+            else None
+        )
+        st.recent_vols.append(float(bar.tick_volume))
+        while len(st.recent_vols) > lookback:
+            st.recent_vols.popleft()
 
         # -- Opening Range formation (§2)
         if bar.time < s.or_end:
@@ -253,6 +269,26 @@ class OrbStrategy:
             vwap = st.vwap_pv / st.vwap_vol
             if (bar.close - vwap) * side.sign < 0:
                 return skip("vwap", f"close {bar.close:.1f} on the wrong side of VWAP {vwap:.1f}")
+        if f.min_break_bar_rvol and st.bar_rvol is not None and st.bar_rvol < f.min_break_bar_rvol:
+            return skip(  # §7.10
+                "break_rvol",
+                f"breakout candle volume {st.bar_rvol:.2f}x session average "
+                f"< required {f.min_break_bar_rvol}",
+            )
+        if f.trend_ma_period and st.ctx.trend_ma is not None:  # §7.9
+            if (bar.close - st.ctx.trend_ma) * side.sign < 0:
+                return skip(
+                    "trend_ma",
+                    f"close {bar.close:.1f} on the wrong side of "
+                    f"MA{f.trend_ma_period} {st.ctx.trend_ma:.1f}",
+                )
+            slope_bad = (
+                f.trend_ma_require_slope
+                and st.ctx.trend_ma_prev is not None
+                and (st.ctx.trend_ma - st.ctx.trend_ma_prev) * side.sign < 0
+            )
+            if slope_bad:
+                return skip("trend_ma", f"MA{f.trend_ma_period} slope is against the breakout")
         if f.news_filter_enabled:
             # The actual entry happens at the NEXT bar open = this bar's close
             # time, so the blackout window is tested at entry time (§7.1).

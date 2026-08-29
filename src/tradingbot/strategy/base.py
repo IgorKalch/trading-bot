@@ -26,6 +26,10 @@ class DayContext:
     prev_session_close: float | None = None  # previous Xetra cash close
     atr_d1: float | None = None  # daily ATR for volatility filters
     or_window_avg_volume: float | None = None  # avg OR-window tick volume, for RVOL
+    # Moving average of the traded timeframe over the bars BEFORE the session
+    # open, and the same average one bar earlier (for its slope). §7.9.
+    trend_ma: float | None = None
+    trend_ma_prev: float | None = None
     news: NewsCalendar = field(default_factory=NewsCalendar.empty)
 
 

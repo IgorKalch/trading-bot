@@ -174,6 +174,7 @@ class LiveRunner:
         try:
             ctx.prev_session_close = self._prev_session_close(session)
             ctx.atr_d1, ctx.or_window_avg_volume = self._daily_aggregates(session)
+            ctx.trend_ma, ctx.trend_ma_prev = self._trend_ma(session)
         except Exception as exc:  # noqa: BLE001 — context extras are optional
             log.warning("Day context extras unavailable: %s", exc)
         self.strategy.on_day_start(ctx)
@@ -246,6 +247,21 @@ class LiveRunner:
             window_v = or_vols[-f.rvol_lookback_days:]
             rvol_avg = sum(window_v) / len(window_v)
         return atr, rvol_avg
+
+    def _trend_ma(self, session: SessionTimes) -> tuple[float | None, float | None]:
+        """MA of the traded timeframe over the bars before today's open (§7.9)."""
+        period = self.cfg.strategy.filters.trend_ma_period
+        if period <= 0:
+            return None, None
+        tf = self.cfg.strategy.timeframe
+        bars = self.client.get_recent_bars(self.symbol, tf, period + 50)
+        prior = [b.close for b in bars if b.time < session.session_open]
+        if len(prior) < period + 1:
+            log.warning("Trend MA(%d) unavailable: only %d bars before the open", period, len(prior))
+            return None, None
+        ma = sum(prior[-period:]) / period
+        ma_prev = sum(prior[-period - 1 : -1]) / period
+        return ma, ma_prev
 
     def _local_time_utc(self, day, hhmm: str) -> datetime:
         hh, mm = hhmm.split(":")

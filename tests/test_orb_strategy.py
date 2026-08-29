@@ -161,3 +161,88 @@ def test_zero_gap_allows_both_directions(schedule):
     bars = [OR_BAR, bar(5, 20000, 20005, 19940, 19950)]  # downside breakout
     sigs = entry_signals(run_day(bars, ctx))
     assert len(sigs) == 1 and sigs[0].side is Side.SHORT
+
+
+# --------------------------------------------------------- §7.9 trend MA filter
+
+
+def _breakout_bars():
+    return [
+        OR_BAR,
+        bar(5, 20040, 20055, 20030, 20045),
+        bar(10, 20045, 20090, 20044, 20085),  # long breakout, closes at 20085
+    ]
+
+
+def test_trend_ma_blocks_breakout_against_the_average(day_ctx):
+    cfg = StrategyConfig()
+    cfg.filters.trend_ma_period = 89
+    day_ctx.trend_ma = 20200.0  # price is far below the average -> no longs
+    events = run_day(_breakout_bars(), day_ctx, cfg)
+    assert not entry_signals(events)
+    assert [s.rule for s in skips(events)] == ["trend_ma"]
+
+
+def test_trend_ma_allows_breakout_with_the_average(day_ctx):
+    cfg = StrategyConfig()
+    cfg.filters.trend_ma_period = 89
+    day_ctx.trend_ma = 19900.0  # price above the average -> long is allowed
+    events = run_day(_breakout_bars(), day_ctx, cfg)
+    assert len(entry_signals(events)) == 1
+
+
+def test_trend_ma_slope_rule_blocks_a_falling_average(day_ctx):
+    cfg = StrategyConfig()
+    cfg.filters.trend_ma_period = 89
+    cfg.filters.trend_ma_require_slope = True
+    day_ctx.trend_ma = 19900.0  # right side of the MA...
+    day_ctx.trend_ma_prev = 19950.0  # ...but the MA itself is falling
+    events = run_day(_breakout_bars(), day_ctx, cfg)
+    assert not entry_signals(events)
+    assert [s.rule for s in skips(events)] == ["trend_ma"]
+
+
+def test_trend_ma_is_inactive_when_context_has_no_value(day_ctx):
+    cfg = StrategyConfig()
+    cfg.filters.trend_ma_period = 89  # enabled, but the context could not supply one
+    assert day_ctx.trend_ma is None
+    assert len(entry_signals(run_day(_breakout_bars(), day_ctx, cfg))) == 1
+
+
+# ------------------------------------------------- §7.10 breakout-candle volume
+
+
+def test_break_rvol_blocks_a_quiet_breakout_candle(day_ctx):
+    cfg = StrategyConfig()
+    cfg.filters.min_break_bar_rvol = 1.5
+    bars = [
+        OR_BAR,  # vol 100
+        bar(5, 20040, 20055, 20030, 20045, vol=100),
+        bar(10, 20045, 20090, 20044, 20085, vol=120),  # 1.2x the average so far
+    ]
+    events = run_day(bars, day_ctx, cfg)
+    assert not entry_signals(events)
+    assert [s.rule for s in skips(events)] == ["break_rvol"]
+
+
+def test_break_rvol_allows_a_high_volume_breakout_candle(day_ctx):
+    cfg = StrategyConfig()
+    cfg.filters.min_break_bar_rvol = 1.5
+    bars = [
+        OR_BAR,  # vol 100
+        bar(5, 20040, 20055, 20030, 20045, vol=100),
+        bar(10, 20045, 20090, 20044, 20085, vol=300),  # 3.0x the average so far
+    ]
+    assert len(entry_signals(run_day(bars, day_ctx, cfg))) == 1
+
+
+def test_break_rvol_never_compares_a_bar_against_itself(day_ctx):
+    """The average must exclude the bar being judged, or every bar scores 1.0x."""
+    cfg = StrategyConfig()
+    cfg.filters.min_break_bar_rvol = 1.5
+    bars = [
+        OR_BAR,
+        bar(5, 20040, 20055, 20030, 20045, vol=100),
+        bar(10, 20045, 20090, 20044, 20085, vol=100),  # exactly average -> 1.0x, rejected
+    ]
+    assert not entry_signals(run_day(bars, day_ctx, cfg))

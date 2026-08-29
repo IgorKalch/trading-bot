@@ -84,6 +84,16 @@ class FiltersConfig(BaseModel):
     or_direction_filter: bool = False
     # Only long above session VWAP / short below.
     vwap_filter: bool = False
+    # §7.9 Trend filter: trade only on the side of a long moving average of the
+    # traded timeframe, measured before the session opens. 0 = off (Hougaard: 89).
+    trend_ma_period: int = 0
+    trend_ma_require_slope: bool = False  # also require the MA itself to point that way
+    # §7.10 The breakout candle must carry at least this multiple of the average
+    # volume of the preceding bars ("high volume extension"). 0 = off. The window
+    # is rolling and short on purpose: measured against the whole session the
+    # opening spike dominates and every later bar scores below 1.0.
+    min_break_bar_rvol: float = 0.0
+    break_rvol_lookback_bars: int = 12
     # Weekdays to skip entirely: 0=Mon .. 4=Fri.
     skip_weekdays: list[int] = Field(default_factory=list)
     # Live entry sanity: skip entry if current spread wider than this.
