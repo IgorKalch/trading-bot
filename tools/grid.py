@@ -57,8 +57,12 @@ VARIANTS = [
 _CTX: dict = {}
 
 
-def _init(config_path: str) -> None:
+def _init(config_path: str, spread: float | None = None, slippage: float | None = None) -> None:
     cfg = load_config(config_path, ".env")
+    if spread is not None:
+        cfg.backtest.spread_points = spread
+    if slippage is not None:
+        cfg.backtest.slippage_points = slippage
     _CTX["cfg"] = cfg
     _CTX["bars"] = {
         tf: history.load_bars(cfg.backtest.data_dir, cfg.mt5.symbol, tf) for tf in ("M1", "M5")
@@ -114,6 +118,8 @@ def main() -> int:
     ap.add_argument("--config", default="config/config.duka.yaml")
     ap.add_argument("--out", default="reports/grid.csv")
     ap.add_argument("--workers", type=int, default=0)
+    ap.add_argument("--spread", type=float, default=None, help="override backtest.spread_points")
+    ap.add_argument("--slippage", type=float, default=None, help="override backtest.slippage_points")
     args = ap.parse_args()
 
     jobs = [(vl, sn, tf, ov, el, ek) for vl, sn, tf, ov in VARIANTS for el, ek in EXITS]
@@ -126,7 +132,8 @@ def main() -> int:
     workers = args.workers or max(1, (os.cpu_count() or 4) - 2)
     t0 = time.time()
     rows = []
-    with ProcessPoolExecutor(workers, initializer=_init, initargs=(args.config,)) as ex:
+    init_args = (args.config, args.spread, args.slippage)
+    with ProcessPoolExecutor(workers, initializer=_init, initargs=init_args) as ex:
         for i, row in enumerate(ex.map(_run, jobs), 1):
             rows.append(row)
             print(f"  [{i}/{len(jobs)}] {row['variant']:<16} {row['exit']:<15} "

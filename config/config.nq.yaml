@@ -1,0 +1,119 @@
+# Nasdaq 100 (Dukascopy NDXUSD) — американська сесія 09:30-16:00 ET. Спред виміряно: 1.34 п.
+# contract size 1.0 замість 25.0, інші котирування. Секрети — в .env.ftmo (gitignored).
+# Запуск: tradingbot backtest --config config/config.ftmo.yaml
+
+bot:
+  mode: signal            # signal = тільки сигнали в Telegram; live = реальні ордери
+  magic: 20260706         # ідентифікатор ордерів бота в MT5
+  poll_seconds: 2.0       # інтервал перевірки позицій/трейлінгу
+  state_dir: state
+  log_dir: logs
+  log_level: INFO
+
+mt5:
+  symbol: NDXUSD
+  server_timezone: eet_us_dst  # GMT+2/+3 за календарем DST США (стандарт MT5-брокерів)
+                               # альтернативи: "Europe/Kyiv" або "fixed:+03:00"
+  deviation_points: 500   # доп. прослизання маркет-ордерів у БРОКЕРСЬКИХ пунктах
+                          # FundingPips GER40: point=0.01 -> 500 = 5.0 пунктів індексу
+
+telegram:
+  enabled: true
+  heartbeat_minutes: 60   # "я живий" у чат; 0 = вимкнено
+
+session:                  # усі часи в session.timezone (STRATEGY.md §8)
+  timezone: "America/New_York"
+  open: "09:30"
+  close: "16:00"
+  or_minutes: 5
+  pos1_cutoff: "11:30"
+  pos2_cutoff: "15:30"
+  flat_time: "15:50"
+
+strategy:
+  name: retest           # цей конфіг — для моделі ретесту на M1
+  timeframe: M1
+  confirmation:           # §5
+    require_body_close: true
+    min_body_to_range: 0.5
+    min_break_points: 0.0
+    min_break_or_frac: 0.0
+  entry:                  # §3, §4, §6
+    first_in_gap_direction_only: true
+    counter_gap_max_points: 0.0    # 60 = дозволити контр-геп при малому гепі
+    allow_second_position: true
+    close_open_position_on_reversal: true
+    max_positions_per_day: 2
+    max_entry_distance_or_mult: 0.0
+  filters:                # §7 (0/false = вимкнено; вмикати по одному через бектест)
+    max_gap_points: 0.0
+    min_or_width_points: 0.0
+    max_or_width_points: 0.0
+    max_or_width_atr_mult: 0.0
+    atr_period: 14
+    min_or_rvol: 0.0
+    rvol_lookback_days: 14
+    or_direction_filter: false
+    vwap_filter: false             # §7.6 ІНЕРТНИЙ: за 258 сесій не відхилив жодного входу
+    trend_ma_period: 0             # §7.9 MA торгового таймфрейму до відкриття; 0 = вимк. (Гоугард: 89)
+    trend_ma_require_slope: false  # §7.9 ще й нахил самої MA має збігатися з напрямком
+    min_break_bar_rvol: 0.0        # §7.10 обсяг пробійної свічки / середній за вікном; 0 = вимк.
+    break_rvol_lookback_bars: 12   # §7.10 довжина цього вікна в барах
+    skip_weekdays: []              # 0=Пн .. 4=Пт
+    max_spread_points: 6.0
+    news_filter_enabled: true
+    news_min_impact: high
+    news_buffer_before_min: 5
+    news_buffer_after_min: 5
+    news_currencies: [EUR, USD]
+  stops:                  # §9
+    sl_buffer_points: 2.0
+    max_sl_points: 0.0
+  targets:                # §10-§11
+    tp_mode: fixed_rr     # fixed_rr | trailing
+    fixed_rr: 1.0
+    trail_start_r: 0.5
+    trail_step_r: 0.5
+    breakeven_buffer_points: 0.0
+
+  retest:                 # тільки для strategy.name: retest (Додаток В)
+    require_body_close: true
+    min_break_or_frac: 0.0   # рішучий пробій як частка ширини OR
+    max_pullback_bars: 3     # коротке вікно — те, що описане в першоджерелі
+    stop_buffer_points: 2.0  # за екстремумом відкату
+    min_stop_points: 0.0     # пропуск, якщо 1R настільки тісний, що його з'їдає спред
+    max_stop_points: 0.0
+    max_positions_per_day: 2
+
+risk:                     # §13
+  risk_per_trade_pct: 1.0
+  min_volume_fallback: false
+  max_volume_lots: 1000.0 # = symbol_info.volume_max для GER40.cash на FTMO-Demo
+
+prop:                     # §14 — звір зі СВОЄЮ моделлю рахунку Funding Pips!
+  enabled: true
+  daily_loss_limit_pct: 5.0      # 2-Step Standard; 1-Step/Pro/Zero = 3.0, Flex = 4.0
+  daily_loss_buffer_pct: 1.5     # бот зупиняється на (5.0-1.5)=3.5%
+  max_drawdown_pct: 10.0         # Standard; 1-Step/Pro = 6.0, Flex = 12.0
+  max_drawdown_buffer_pct: 2.0
+  initial_balance: 10000        # 2-Step Standard 10k: база просадки — ПОЧАТКОВА сума, не поточний баланс
+  restrict_news_trading: true
+  news_window_before_min: 5
+  news_window_after_min: 5
+  flatten_before_news: true      # закрити позиції ДО початку новинного вікна
+  require_news_data: false       # true = без календаря новин входи заборонено
+  forbid_weekend_holding: true
+
+backtest:
+  data_dir: data/cache_duka
+  reports_dir: reports
+  news_csv: data/news/calendar.csv
+  initial_balance: 10000  # масштаб реального рахунку — інакше бектест не побачить відмов по мін.лоту
+  spread_points: 1.34
+  slippage_points: 1.0
+  commission_per_lot: 0.0 # Funding Pips: індекси без комісії
+  pessimistic_same_bar: true
+  point_value_per_lot: 20.0
+  volume_min: 0.01
+  volume_step: 0.01
+  volume_max: 1000.0
