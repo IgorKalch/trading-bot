@@ -15,8 +15,9 @@ venv/
 state/
 logs/
 
-# Data caches (historical bars can be re-downloaded)
+# Data caches (historical bars can be re-downloaded), one dir per broker
 data/cache/
+data/cache_*/
 
 # Backtest outputs: keep the summary reports (evolution log / proof of work),
 # drop the bulky per-trade CSVs and the raw feed cache.
