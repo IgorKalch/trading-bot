@@ -30,7 +30,7 @@ session:                  # усі часи в session.timezone (STRATEGY.md §8
   flat_time: "17:20"      # примусове закриття всіх позицій
 
 strategy:
-  name: orb
+  name: orb              # orb | retest (Додаток В)
   timeframe: M5
   confirmation:           # §5
     require_body_close: true
@@ -74,6 +74,15 @@ strategy:
     trail_start_r: 0.5
     trail_step_r: 0.5
     breakeven_buffer_points: 0.0
+
+  retest:                 # тільки для strategy.name: retest (Додаток В)
+    require_body_close: true
+    min_break_or_frac: 0.0   # рішучий пробій як частка ширини OR
+    max_pullback_bars: 6     # скільки барів чекати на ретест + поглинання
+    stop_buffer_points: 2.0  # за екстремумом відкату
+    min_stop_points: 0.0     # пропуск, якщо 1R настільки тісний, що його з'їдає спред
+    max_stop_points: 0.0
+    max_positions_per_day: 2
 
 risk:                     # §13
   risk_per_trade_pct: 1.0

@@ -128,7 +128,7 @@ def _cmd_backtest(cfg: AppConfig, args) -> int:
     from tradingbot.backtest.report import render_report, save_report
     from tradingbot.data import history
     from tradingbot.data.news import NewsCalendar
-    from tradingbot.strategy.orb import OrbStrategy
+    from tradingbot.strategy import build_strategy
 
     end = datetime.fromisoformat(args.end).replace(tzinfo=UTC) if args.end else datetime.now(tz=UTC)
     if args.start:
@@ -143,7 +143,7 @@ def _cmd_backtest(cfg: AppConfig, args) -> int:
     print(f"Backtesting {cfg.mt5.symbol} on {len(bars)} bars: {bars[0].time} .. {bars[-1].time}")
 
     news = NewsCalendar.from_csv(cfg.backtest.news_csv)
-    engine = BacktestEngine(cfg, OrbStrategy(cfg.strategy), news)
+    engine = BacktestEngine(cfg, build_strategy(cfg.strategy), news)
     result = engine.run(bars)
 
     print(render_report(result))
@@ -160,7 +160,7 @@ def _cmd_run(cfg: AppConfig) -> int:
     from tradingbot.live.runner import LiveRunner
     from tradingbot.notify.telegram import TelegramNotifier
     from tradingbot.risk.prop_guard import PropGuard
-    from tradingbot.strategy.orb import OrbStrategy
+    from tradingbot.strategy import build_strategy
 
     client = Mt5Client(cfg.mt5)
     if cfg.bot.mode == "live":
@@ -174,7 +174,7 @@ def _cmd_run(cfg: AppConfig) -> int:
         cfg=cfg,
         client=client,
         executor=executor,
-        strategy=OrbStrategy(cfg.strategy),
+        strategy=build_strategy(cfg.strategy),
         notifier=TelegramNotifier(cfg.telegram),
         guard=PropGuard(cfg.prop, cfg.bot.state_dir),
     )

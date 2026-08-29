@@ -119,6 +119,18 @@ class TargetsConfig(BaseModel):
     breakeven_buffer_points: float = 0.0  # extra points when moving stop to BE
 
 
+class RetestConfig(BaseModel):
+    """Retest-and-absorb model (Додаток В). Used only when strategy.name = retest."""
+
+    require_body_close: bool = True  # the break bar must close with a directional body
+    min_break_or_frac: float = 0.0  # decisive break, as a fraction of OR width
+    max_pullback_bars: int = 12  # give up if the retest is not absorbed within this
+    stop_buffer_points: float = 2.0  # beyond the pullback extreme
+    min_stop_points: float = 0.0  # skip if 1R is so tight the spread dominates
+    max_stop_points: float = 0.0
+    max_positions_per_day: int = 2
+
+
 class StrategyConfig(BaseModel):
     name: str = "orb"
     timeframe: str = "M5"
@@ -127,6 +139,7 @@ class StrategyConfig(BaseModel):
     filters: FiltersConfig = FiltersConfig()
     stops: StopsConfig = StopsConfig()
     targets: TargetsConfig = TargetsConfig()
+    retest: RetestConfig = RetestConfig()
 
 
 class RiskConfig(BaseModel):

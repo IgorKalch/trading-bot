@@ -27,7 +27,7 @@ from tradingbot.backtest.engine import BacktestEngine  # noqa: E402
 from tradingbot.config import AppConfig, load_config  # noqa: E402
 from tradingbot.data import history  # noqa: E402
 from tradingbot.data.news import NewsCalendar  # noqa: E402
-from tradingbot.strategy.orb import OrbStrategy  # noqa: E402
+from tradingbot.strategy import build_strategy  # noqa: E402
 
 # --- grid -------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ def _max_dd_r(rs: list[float]) -> float:
 def _run(job: tuple) -> dict:
     exit_name, exit_kw, filt_label, filt_kw = job
     cfg = _variant(_CTX["cfg"], exit_kw, filt_kw)
-    res = BacktestEngine(cfg, OrbStrategy(cfg.strategy), NewsCalendar.empty()).run(_CTX["bars"])
+    res = BacktestEngine(cfg, build_strategy(cfg.strategy), NewsCalendar.empty()).run(_CTX["bars"])
     split = _CTX["split"]
     all_r = [t.result_r for t in res.trades]
     is_r = [t.result_r for t in res.trades if t.day < split]
