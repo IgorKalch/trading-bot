@@ -243,6 +243,24 @@ class RetestStrategy:
         f = cfg.filters
         if f.require_fvg and st.fvg.recent(side, f.fvg_max_age_bars, f.fvg_min_size_points) is None:
             return done("no_fvg", "no imbalance in the trade direction")  # §7.11
+        # Gates shared with the ORB model. Checked here rather than at range
+        # formation because this model can be armed on a day it never trades.
+        if orng.day.weekday() in f.skip_weekdays:  # §7.5
+            return done("weekday", f"weekday {orng.day.weekday()} is in skip_weekdays")
+        if f.min_or_width_points and orng.width < f.min_or_width_points:  # §7.2
+            return done("or_width_min", f"OR width {orng.width:.1f} < min {f.min_or_width_points}")
+        if f.max_or_width_points and orng.width > f.max_or_width_points:  # §7.2
+            return done("or_width_max", f"OR width {orng.width:.1f} > max {f.max_or_width_points}")
+        if f.trend_ma_period and st.ctx.trend_ma is not None:  # §7.9
+            if (bar.close - st.ctx.trend_ma) * side.sign < 0:
+                return done("trend_ma", f"close on the wrong side of MA{f.trend_ma_period}")
+            slope_bad = (
+                f.trend_ma_require_slope
+                and st.ctx.trend_ma_prev is not None
+                and (st.ctx.trend_ma - st.ctx.trend_ma_prev) * side.sign < 0
+            )
+            if slope_bad:
+                return done("trend_ma", f"MA{f.trend_ma_period} slope against the trade")
         if f.news_filter_enabled:
             entry_time = bar.time + timedelta(minutes=_TF_MINUTES.get(cfg.timeframe, 5))
             event = st.ctx.news.blocking_event(
