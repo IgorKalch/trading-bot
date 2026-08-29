@@ -1,0 +1,37 @@
+================ BACKTEST REPORT ================
+Days processed: 258   Balance: 10,000 -> 7,105.04
+--- ALL TRADES ---
+Trades: 229  (wins 57 / losses 172)
+WinRate: 24.9%   Expectancy: -0.153R   ProfitFactor: 0.61
+Total PnL: -2,894.96 (-28.95%)   Avg monthly: -2.23%
+Max losing streak: 12   Max drawdown: 29.84%
+--- FIRST POSITION ---
+Trades: 107  (wins 24 / losses 83)
+WinRate: 22.4%   Expectancy: -0.167R   ProfitFactor: 0.52
+Total PnL: -1,668.42 (-16.68%)   Avg monthly: -1.28%
+Max losing streak: 15   Max drawdown: 17.69%
+--- SECOND POSITION ---
+Trades: 122  (wins 33 / losses 89)
+WinRate: 27.0%   Expectancy: -0.140R   ProfitFactor: 0.68
+Total PnL: -1,226.54 (-12.27%)   Avg monthly: -0.94%
+Max losing streak: 11   Max drawdown: 12.27%
+--- MONTHLY PnL % ---
+2025-08: -0.83%
+2025-09: -6.62%
+2025-10: -2.54%
+2025-11: -7.91%
+2025-12: -2.23%
+2026-01: +0.01%
+2026-02: +0.71%
+2026-03: -4.52%
+2026-04: +0.99%
+2026-05: -0.67%
+2026-06: +2.53%
+2026-07: -2.70%
+2026-08: -5.16%
+Skipped setups: 192
+  gap_direction: 126
+  confirmation: 55
+  time_window: 10
+  no_or: 1
+=================================================
