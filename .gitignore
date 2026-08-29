@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Secrets & local state
+.env
+state/
+logs/
+
+# Data caches (historical bars can be re-downloaded)
+data/cache/
+
+# Backtest outputs: keep the summary reports (evolution log / proof of work),
+# drop the bulky per-trade CSVs and the raw feed cache.
+reports/*
+!reports/*.txt
+!reports/README.md
+
+# IDE
+.vscode/
+.idea/
+
+# Test / coverage
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/

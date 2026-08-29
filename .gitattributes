@@ -1,0 +1,10 @@
+# Normalise line endings: LF in the repository, native on checkout is disabled
+# so every machine sees the same bytes.
+* text=auto eol=lf
+
+# Windows batch launcher: cmd.exe is safest with CRLF (multi-line blocks and
+# labels can misbehave on LF-only files).
+*.cmd text eol=crlf
+
+# Binary caches that may end up under data/ — never touch them.
+*.parquet binary

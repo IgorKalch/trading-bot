@@ -1,0 +1,105 @@
+# Конфігурація ORB-бота. Кожен параметр стратегії описано в STRATEGY.md.
+# Секрети (логін MT5, токен Telegram) — ТІЛЬКИ в .env, не тут.
+
+bot:
+  mode: signal            # signal = тільки сигнали в Telegram; live = реальні ордери
+  magic: 20260706         # ідентифікатор ордерів бота в MT5
+  poll_seconds: 2.0       # інтервал перевірки позицій/трейлінгу
+  state_dir: state
+  log_dir: logs
+  log_level: INFO
+
+mt5:
+  symbol: GER40           # звір назву в Market Watch: GER40 / DE40 / GER40.cash ...
+  server_timezone: eet_us_dst  # GMT+2/+3 за календарем DST США (стандарт MT5-брокерів)
+                               # альтернативи: "Europe/Kyiv" або "fixed:+03:00"
+  deviation_points: 100   # доп. прослизання маркет-ордерів у БРОКЕРСЬКИХ пунктах
+                          # (point=0.1 -> 100 = 10 пунктів індексу)
+
+telegram:
+  enabled: true
+  heartbeat_minutes: 60   # "я живий" у чат; 0 = вимкнено
+
+session:                  # усі часи в session.timezone (STRATEGY.md §8)
+  timezone: Europe/Berlin
+  open: "09:00"           # відкриття Xetra (= 10:00 Київ)
+  close: "17:30"          # закриття Xetra — референс для гепу
+  or_minutes: 5
+  pos1_cutoff: "11:00"    # дедлайн входу першої позиції (= 12:00 Київ)
+  pos2_cutoff: "17:00"    # дедлайн входу другої позиції (= 18:00 Київ)
+  flat_time: "17:20"      # примусове закриття всіх позицій
+
+strategy:
+  name: orb
+  timeframe: M5
+  confirmation:           # §5
+    require_body_close: true
+    min_body_to_range: 0.5
+    min_break_points: 0.0
+    min_break_or_frac: 0.0
+  entry:                  # §3, §4, §6
+    first_in_gap_direction_only: true
+    counter_gap_max_points: 0.0    # 60 = дозволити контр-геп при малому гепі
+    allow_second_position: true
+    close_open_position_on_reversal: true
+    max_positions_per_day: 2
+    max_entry_distance_or_mult: 0.0
+  filters:                # §7 (0/false = вимкнено; вмикати по одному через бектест)
+    max_gap_points: 0.0
+    min_or_width_points: 0.0
+    max_or_width_points: 0.0
+    max_or_width_atr_mult: 0.0
+    atr_period: 14
+    min_or_rvol: 0.0
+    rvol_lookback_days: 14
+    or_direction_filter: false
+    vwap_filter: false
+    skip_weekdays: []              # 0=Пн .. 4=Пт
+    max_spread_points: 6.0
+    news_filter_enabled: true
+    news_min_impact: high
+    news_buffer_before_min: 5
+    news_buffer_after_min: 5
+    news_currencies: [EUR, USD]
+  stops:                  # §9
+    sl_buffer_points: 2.0
+    max_sl_points: 0.0
+  targets:                # §10-§11
+    tp_mode: fixed_rr     # fixed_rr | trailing
+    fixed_rr: 1.0
+    trail_start_r: 0.5
+    trail_step_r: 0.5
+    breakeven_buffer_points: 0.0
+
+risk:                     # §13
+  risk_per_trade_pct: 1.0
+  min_volume_fallback: false
+  max_volume_lots: 20.0   # Funding Pips: 20 лотів/клік
+
+prop:                     # §14 — звір зі СВОЄЮ моделлю рахунку Funding Pips!
+  enabled: true
+  daily_loss_limit_pct: 5.0      # 2-Step Standard; 1-Step/Pro/Zero = 3.0, Flex = 4.0
+  daily_loss_buffer_pct: 1.5     # бот зупиняється на (5.0-1.5)=3.5%
+  max_drawdown_pct: 10.0         # Standard; 1-Step/Pro = 6.0, Flex = 12.0
+  max_drawdown_buffer_pct: 2.0
+  initial_balance: 0             # 0 = зафіксувати баланс при першому запуску
+  restrict_news_trading: true
+  news_window_before_min: 5
+  news_window_after_min: 5
+  flatten_before_news: true      # закрити позиції ДО початку новинного вікна
+  require_news_data: false       # true = без календаря новин входи заборонено
+  forbid_weekend_holding: true
+
+backtest:
+  data_dir: data/cache
+  reports_dir: reports
+  news_csv: data/news/calendar.csv
+  initial_balance: 100000
+  spread_points: 2.0      # заміряй реальний спред GER40 у своєї фірми!
+  slippage_points: 1.0
+  commission_per_lot: 0.0 # Funding Pips: індекси без комісії
+  pessimistic_same_bar: true
+  point_value_per_lot: 1.0
+  volume_min: 0.01
+  volume_step: 0.01
+  volume_max: 20.0
