@@ -1,0 +1,63 @@
+===== DUKASCOPY: 3.7 YEARS OF M1 CLOSES THE LAST CANDIDATE =====
+
+Data: Dukascopy DEUIDXEUR (DAX index CFD), M1 bid bars,
+      1,225,546 bars / 943 sessions, 2023-01-02 .. 2026-08-28.
+      Twelve times what either prop broker would serve.
+
+Dukascopy spread, measured from its own ask-minus-bid, entry window 09:05-11:00:
+      mean 1.51   median 1.44   p90 1.48   (n = 108,309)
+Three independent measurements now agree on the order of magnitude:
+      FTMO 1.25    Dukascopy 1.51    FundingPips 1.92
+
+--- A. THE RETEST MODEL OVER 943 SESSIONS ---
+Costs: spread 1.25 (FTMO measured, the broker we would actually trade) + slip 1.0
+
+  maxPB      n      WR     PF     expR    +-SE          95% CI        DD_R
+      3    253   45.5%   0.76   -0.147   0.066   -0.276 .. -0.018     51.9
+      6    445   46.7%   0.80   -0.114   0.050   -0.211 .. -0.017     53.7
+     10    581   47.5%   0.84   -0.093   0.043   -0.178 .. -0.008     64.5
+
+Every confidence interval lies ENTIRELY BELOW ZERO. This is no longer 'no edge
+demonstrated' - it is a measured, statistically significant losing strategy.
+
+--- B. THERE IS NO RAW EDGE EITHER ---
+maxPB 6, whole period:
+  costs                          n      WR     PF     expR    +-SE
+  FTMO 1.25 + slip 1.0         445   46.7%   0.80   -0.114   0.050
+  Dukascopy 1.51 + slip 1.0    445   46.7%   0.80   -0.118   0.050
+  FundingPips 1.92 + slip 1.0  445   46.5%   0.78   -0.128   0.050
+  ZERO costs                   445   51.0%   1.04   +0.020   0.047
+
+On 38-41 trades this model showed PF 1.38 and 1.55 at zero cost, and that was
+read as 'a real edge that costs consume'. On 445 trades it is PF 1.04 and
++0.020R +- 0.047 - a coin flip. The edge was never there.
+
+--- C. YEAR BY YEAR: NOT ONE POSITIVE ---
+  2023   n=114   -0.050R  +-0.099
+  2024   n=127   -0.267R  +-0.093
+  2025   n=111   -0.044R  +-0.099
+  2026   n= 93   -0.067R  +-0.108
+
+--- D. THE EXACT ANATOMY OF THE FALSE POSITIVE ---
+The window the brokers could serve was 2026-05-18 .. 2026-08-28, 75 sessions.
+
+  same window, FTMO data,      maxPB 3, 24 trades:   PF 1.29   +0.130R
+  same window, FTMO data,      maxPB 6, 41 trades:   PF 1.08   +0.039R
+  same window, Dukascopy data, maxPB 6, 38 trades:   PF 0.61   -0.251R
+
+The same model, over the same 75 sessions, on two feeds of the same market,
+gives +0.039R and -0.251R. The sample was never large enough to have a sign,
+let alone a size. The 95% interval computed at the time, -0.290R .. +0.551R,
+said exactly this in advance, and the wider data has now confirmed it.
+
+--- E. VERDICT ---
+Both candidates are closed:
+  ORB           - 18 months, two brokers, every exit, 21,672 filter
+                  combinations, clean holdout. No edge.
+  Retest on M1  - 943 sessions, 445 trades, every year negative, and no edge
+                  even at zero cost. Significantly losing.
+
+Nothing in this project is profitable, and this is now a measurement rather
+than an absence of evidence. The infrastructure did its job: it produced two
+false positives on small samples and then killed both when given enough data.
+===============================================================
