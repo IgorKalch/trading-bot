@@ -90,6 +90,10 @@ tradingbot backtest --start 2025-06-01 --end 2026-06-01
 збитків, помісячний PnL, розбивка перша/друга позиція, статистика пропусків за
 фільтрами. Файли: `reports/backtest_<tag>.txt` + `reports/trades_<tag>.csv`.
 
+Звіти `.txt` **комітяться в git** як журнал еволюції стратегії (доказ
+обґрунтованості рішень для проп-фірми), CSV угод — ні. Конвенція іменування
+тегів і таблиця журналу — у [reports/README.md](reports/README.md).
+
 Фільтр новин у бектесті: поклади календар у `data/news/calendar.csv`
 (формат: `datetime_utc,currency,impact,title`) — без файлу фільтр просто не має даних.
 
@@ -116,10 +120,11 @@ tradingbot run
 
 ### Автозапуск на Windows (Task Scheduler)
 
-1. Створи `run_bot.cmd` у корені проєкту:
+1. У корені проєкту вже лежить `run_bot.cmd` — правити його не треба,
+   він визначає теку сам — працює з будь-якого шляху:
    ```bat
    @echo off
-   cd /d c:\Users\i.kalchenko\source\repos\IK\trading-bot
+   cd /d %~dp0
    call .venv\Scripts\activate
    tradingbot run >> logs\stdout.log 2>&1
    ```
@@ -149,7 +154,7 @@ Windows VPS — **але спершу письмово підтверди в п�
 ## Тестування
 
 ```powershell
-python -m pytest          # 48 юніт- і сценарних тестів
+python -m pytest          # 53 юніт- і сценарні тести
 python -m ruff check src tests
 ```
 
