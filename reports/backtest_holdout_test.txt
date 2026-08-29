@@ -1,0 +1,80 @@
+===== DEEPER HISTORY: THE HOLDOUT TEST THAT CLOSES ORB =====
+
+After raising 'Max bars in chart' in both terminals:
+  M5   69,597 -> 100,136 bars (FundingPips) / 100,762 (FTMO)  = ~18 months
+  M1  100,000 -> 100,000 bars on BOTH, unchanged
+
+The M1 limit is server-side, not a terminal setting: copy_rates_range for
+2024 or early 2025 returns a single bar on both brokers. Neither will serve
+more than 100,000 M1 bars, so the retest model cannot be tested any further
+on data from these two firms.
+
+What the deeper M5 buys is more valuable: 2025-03-16 .. 2025-08-21 was never
+touched by any test, sweep or parameter choice in this project. It is a true
+holdout, and every number below for it is a first look.
+
+--- A. min_break_or_frac ON THE HOLDOUT: THE RELATIONSHIP INVERTS ---
+fixed 1.5R.  'used' = the period all previous tuning ran on.
+
+  FundingPips          HOLDOUT (new)              used (old)
+  frac      n     PF     expR    +-SE       n     PF     expR
+  0.00     80   1.02   +0.009   0.130     228   0.84   -0.099
+  0.15     51   1.20   +0.102   0.165     139   1.00   -0.002
+  0.20     40   0.84   -0.092   0.176     116   1.17   +0.088
+  0.30     26   0.78   -0.132   0.221      80   1.27   +0.131
+  0.40     17   1.10   +0.047   0.273      60   1.40   +0.185
+
+  FTMO                 HOLDOUT (new)              used (old)
+  0.00     87   1.05   +0.028   0.126     235   0.83   -0.104
+  0.15     55   1.27   +0.134   0.161     144   0.80   -0.119
+  0.20     43   1.32   +0.155   0.181     112   0.95   -0.025
+  0.30     30   1.24   +0.124   0.221      83   1.05   +0.029
+  0.40     18   0.84   -0.093   0.267      58   1.06   +0.030
+
+On FundingPips the two settings that looked best on the tuning period -- 0.20
+and 0.30, at +0.088R and +0.131R -- are the two WORST on data they never saw,
+at -0.092R and -0.132R. The ranking does not merely weaken, it inverts. That is
+the textbook signature of a parameter fitted to noise.
+
+The two brokers also disagree about which value is best on the same holdout
+(FundingPips 0.15, FTMO 0.20), which is the second tell.
+
+And the baseline itself tells the real story: frac 0.00 is +0.009R and +0.028R
+on the holdout against -0.099R and -0.104R on the tuning period. The holdout
+was simply a friendlier five months for opening-range breakouts. What looked
+like a filter finding was period, not edge.
+
+--- B. ORB OVER THE FULL 18 MONTHS, EVERY EXIT, BOTH BROKERS ---
+  FundingPips        n     WR     PF     expR    +-SE   DD_R
+  fixed 1.0R       308  48.1%   0.89   -0.057   0.056   21.9
+  fixed 1.5R       308  39.9%   0.88   -0.071   0.066   26.1
+  fixed 2.0R       308  36.4%   0.84   -0.100   0.071   37.1
+  trail 0.5/0.25   308  45.5%   0.89   -0.046   0.058   27.5
+  trail 0.5/0.5    308  35.1%   0.85   -0.060   0.062   34.1
+  trail 0.5/1.0    308  25.3%   0.84   -0.067   0.065   36.6
+  trail 1.0/0.5    308  32.8%   0.78   -0.120   0.074   47.8
+
+  FTMO               n     WR     PF     expR    +-SE   DD_R
+  fixed 1.0R       322  49.1%   0.94   -0.030   0.055   20.3
+  fixed 1.5R       322  40.1%   0.88   -0.068   0.064   29.5
+  fixed 2.0R       322  37.3%   0.90   -0.060   0.071   29.4
+  trail 0.5/0.25   322  43.8%   0.83   -0.070   0.052   27.3
+  trail 0.5/0.5    322  34.5%   0.85   -0.060   0.057   31.0
+  trail 0.5/1.0    322  24.2%   0.82   -0.076   0.058   37.7
+  trail 1.0/0.5    322  31.7%   0.83   -0.094   0.075   50.1
+
+Fourteen configurations, two brokers, 308-322 trades each, eighteen months.
+Not one is positive. The best cell, FTMO fixed 1R at -0.030R +- 0.055, is
+within a standard error of zero -- which is the most that can be said for it.
+
+--- C. VERDICT ON ORB ---
+Closed. The model was tested on two brokers, over eighteen months, across
+every exit scheme and 21,672 filter combinations, and given a clean holdout at
+the end. It has no edge to find. Further parameter work on it is not research,
+it is decoration.
+
+The retest model on M1 remains the only live candidate, and it is now blocked
+on data: 24-41 trades is all these brokers can supply, and its 95% confidence
+interval (-0.290R .. +0.551R) contains zero. Answering it needs M1 history
+from outside these two firms.
+============================================================
