@@ -1,0 +1,73 @@
+===== SECOND BROKER: FTMO-Demo (GER40.cash) =====
+Purpose: run the same models against a different broker's quotes for the same
+market and period, to separate 'the model fails' from 'this feed is odd'.
+
+FundingPips  GER40       M5 69,597 bars  258 sessions  contract 25.0  1pt = 28.95 USD/lot
+FTMO-Demo    GER40.cash  M5 69,454 bars  257 sessions  contract  1.0  1pt =  1.16 USD/lot
+Both feeds put the busiest bar of every session at 09:00 Europe/Berlin, so
+server_timezone eet_us_dst is correct for both.
+
+NOTE ON COSTS: spread 2.0 + slippage 1.0 is applied to BOTH. The FTMO spread
+could not be measured (weekend, no live tick) and is a placeholder carried over
+from FundingPips. The comparison between the two columns is therefore fair;
+the absolute level of either is not settled until both are measured live.
+
+--- A. ORB, EXIT GRID (M5, full year) ---
+exit            |          FundingPips           |             FTMO
+                |    WR     PF     expR    oosR  |    WR     PF     expR    oosR
+fixed 1.0R      |  46.7%   0.84   -0.086  -0.116  |  47.5%   0.87   -0.069  -0.104
+fixed 1.5R      |  38.4%   0.85   -0.093  -0.068  |  38.1%   0.83   -0.102  -0.134
+fixed 2.0R      |  34.5%   0.78   -0.141  -0.132  |  35.2%   0.82   -0.113  -0.150
+trail 0.5/0.25  |  44.5%   0.73   -0.118  -0.054  |  42.4%   0.69   -0.131  -0.078
+trail 0.5/0.5   |  34.1%   0.67   -0.144  -0.073  |  33.5%   0.68   -0.139  -0.125
+trail 0.5/1.0   |  24.9%   0.66   -0.153  -0.103  |  23.7%   0.62   -0.164  -0.143
+trail 1.0/0.5   |  32.8%   0.68   -0.176  -0.180  |  31.4%   0.66   -0.190  -0.225
+trail 1.0/1.0   |  27.1%   0.67   -0.183  -0.208  |  26.3%   0.67   -0.185  -0.262
+trail 1.5/0.5   |  30.6%   0.69   -0.196  -0.235  |  31.8%   0.76   -0.149  -0.240
+
+Near-identical, including the ordering: fixed beats every trailing variant, and
+trailing degrades as the start moves later and the step grows. The ORB failure
+is a property of the model, not of one broker's data.
+
+--- B. min_break_or_frac DOES NOT REPLICATE AT SIZE ---
+Same filter, same period, two feeds (fixed 1.5R):
+  frac | FundingPips  n     PF     allR    oosR | FTMO  n     PF     allR    oosR
+  0.00 |        229   0.85   -0.093  -0.068 |   236   0.83   -0.102  -0.134
+  0.15 |        139   0.99   -0.003  +0.149 |   144   0.80   -0.123  +0.001
+  0.20 |        116   1.17   +0.088  +0.204 |   112   0.95   -0.030  +0.073
+  0.25 |         97   1.21   +0.110  +0.272 |    96   0.93   -0.042  -0.045
+  0.30 |         80   1.27   +0.131  +0.338 |    83   1.05   +0.025  -0.051
+  0.40 |         60   1.39   +0.184  +0.231 |    58   1.05   +0.026  -0.074
+
+Both feeds agree on the DIRECTION: demanding a decisive break improves the
+baseline. They disagree on the SIZE by a factor of about seven at frac 0.40
+(+0.184R vs +0.026R), and on FTMO the out-of-sample sign flips negative.
+On FundingPips this filter looked like the first real finding of the project.
+On a parallel feed of the same market over the same days it is break-even.
+The effect is inside the noise that merely changing data vendor produces.
+
+--- C. RETEST MODEL ON M1: THE ONE THAT SURVIVES THE SWAP ---
+Same 75 sessions (2026-05-18..08-28), maxPB 6, fixed 1R:
+  costs                        | FundingPips  n     PF     expR | FTMO  n     PF     expR
+  real (spread 2.0 + slip 1)  |         38   0.92   -0.041 |    41   1.06   +0.033
+  spread 1.0 + slip 0.5       |         38   0.96   -0.020 |    41   1.22   +0.101
+  zero costs                  |         38   1.38   +0.158 |    41   1.55   +0.217
+
+  Pullback window, real costs:   FundingPips        FTMO
+    maxPB  3    22 trades  PF 0.92  -0.043     24 trades  PF 1.27  +0.124
+    maxPB  6    38 trades  PF 0.92  -0.041     41 trades  PF 1.06  +0.033
+    maxPB 10    55 trades  PF 0.72  -0.169     54 trades  PF 0.74  -0.155
+    maxPB 15    64 trades  PF 0.82  -0.101     62 trades  PF 0.77  -0.138
+
+Both feeds agree that the raw signal has an edge (PF 1.38 / 1.55 at zero cost)
+and that a short pullback window is what carries it -- 3 to 6 bars works, 10 to
+15 does not, which matches the source's 'ideally inside three minutes'.
+On FTMO it stays positive after real costs; on FundingPips it does not.
+
+--- D. WHAT THE TWO BROKERS DO AND DO NOT PROVE ---
+These are NOT two independent samples. Same index, same days, same trades --
+only the quotes differ. Agreement rules out an artefact of one feed. It says
+nothing about another time period, and 22-41 trades remains far too few.
+What section B shows is how much a change of vendor alone can move a measured
+effect: enough to turn a 'first real finding' into break-even.
+=================================================
