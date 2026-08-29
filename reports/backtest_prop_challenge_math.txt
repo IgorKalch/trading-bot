@@ -1,0 +1,74 @@
+===== CAN THIS PASS A PROP CHALLENGE IN ONE MONTH? =====
+
+Measured: expectancy +0.146R, 7.9 trades a month, historical max drawdown 10.3R.
+
+--- A. THE ARITHMETIC ---
+  expected profit per month = 7.9 x 0.146 = 1.16R
+  historical worst drawdown = 10.3R
+  the drawdown is NINE MONTHS of expected profit
+
+  To make 10% in one month you must risk 8.6% per trade.
+  At that risk the historical drawdown becomes 89% of the account, and a
+  seven-trade losing streak - which happened - costs 60%.
+
+  The condition for a one-month pass is: expected monthly R > max drawdown R.
+  We have 1.16R against 10.3R. Short by a factor of 8.9.
+
+  Closing that gap needs one of: 71 trades a month instead of 8, or +1.31R
+  per trade instead of +0.146R, or a 1.1R maximum drawdown instead of 10.3R.
+
+--- B. MORE INSTRUMENTS WAS THE ONLY REAL LEVER. IT DOES NOT EXIST. ---
+Same model, same filters, futures-tick costs, seven index markets:
+
+  market        n   /mo     WR    PF    expR   CI lo   R/mo   DD_R   1R pts  cost/R
+  NQ          349   7.9  57.6%  1.34  +0.146  +0.041   1.16   10.3     36.3    1.4%
+  RTY         370   8.4  51.1%  1.01  +0.007  -0.096   0.06   25.9      6.5    3.1%
+  DAX         355   8.1  51.5%  1.02  +0.009  -0.098   0.07   27.2     22.1    4.5%
+  YM Dow      317   7.2  50.5%  0.98  -0.011  -0.123  -0.08   20.3     51.0    3.9%
+  ES          395   9.0  46.8%  0.84  -0.087  -0.188  -0.78   37.2      8.2    6.1%
+  FTSE        354   8.0  46.6%  0.80  -0.113  -0.222  -0.91   41.1     10.0   10.0%
+  EuroStoxx   282   6.4  40.1%  0.55  -0.325  -0.452  -2.09   94.3      8.4   23.8%
+
+Ordered by cost/R the column is almost monotone. NQ is the only market on
+earth-and-Dukascopy where this model has an edge, and the reason is that it
+swings 36 points on the setup while its tick is 0.25. Trading four markets
+at once would have quadrupled monthly R against a drawdown growing more
+slowly - that was the one honest route to a faster pass, and there is only
+one instrument to trade.
+
+--- C. WHAT A ONE-MONTH ATTEMPT ACTUALLY LOOKS LIKE ---
+20,000 bootstrap runs per cell, drawn from the real 349-trade distribution.
+Pass = reach +10% before a 10% drawdown.
+
+  risk/trade      1 month        2 months       3 months       6 months      12 months
+                pass blown     pass blown     pass blown     pass blown     pass blown
+       1%         0%    0%       5%    0%      16%    1%      45%    4%      77%    9%
+       2%        14%    2%      39%   11%      52%   18%      70%   26%      72%   28%
+       3%        30%   14%      53%   28%      62%   33%      65%   35%      65%   35%
+       5%        50%   36%      58%   42%      58%   42%      58%   42%      58%   42%
+       8%        57%   42%      57%   43%      57%   43%      57%   43%      57%   43%
+      10%        57%   43%      57%   43%      57%   43%      57%   43%      57%   43%
+
+The pass rate SATURATES at 57%. Past about 8% risk, more leverage buys
+nothing: you either hit the target in a few trades or you are gone. A coin
+flip would give roughly 50/50 here; the entire measured edge is worth seven
+percentage points on that bet.
+
+And it is worse than the table shows. Prop accounts also carry a ~5% DAILY
+loss limit. At 5% risk per trade one loss ends the day at the limit; at 8%
+one loss fails the account outright. The high-risk column is not reachable in
+practice - the realistic ceiling is about 2% per trade, which is a 14% chance
+of passing in a month and a 2% chance of blowing up.
+
+--- D. THE REAL CHOICES ---
+  0.50% risk:  0% in 1 month, 37% in 12, 81% in 24, essentially never blows up
+  0.75% risk:  0% in 1 month, 64% in 12, 90% in 24, 5% blow-up over 24 months
+  1.00% risk:  0% in 1 month, 77% in 12, 88% in 24, 11% blow-up
+  2.00% risk: 14% in 1 month, 72% in 12, but 28% blow-up over 12 months
+
+There is no configuration of this strategy that passes a 10% challenge in one
+month with better than coin-flip odds, and none that does it at a risk level
+a daily loss limit permits. That is not a tuning problem. An edge of +0.146R
+on eight trades a month makes about 1.2R a month; a 10% target at a survivable
+risk is 13 to 20R of profit. The gap is arithmetic.
+========================================================
