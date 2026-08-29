@@ -1,0 +1,58 @@
+===== RETEST ON NQ: FIXED vs TRAILING, FULL EXIT GRID =====
+
+Dukascopy NDXUSD M1, 943 sessions 2023-01..2026-08, pullback window 6,
+futures-like costs (0.25 spread + 0.25 slippage). 428 trades in every row -
+the entry set is identical, only the exit differs.
+
+exit               n     WR    PF    expR    +-SE   CI lo  trim20   DD_R      IS     OOS  +yrs
+fixed 0.5R       428  69.4%  1.12  +0.036  0.034  -0.030  +0.013    9.4  +0.038  +0.034   4/4
+fixed 0.75R      428  59.6%  1.09  +0.037  0.042  -0.046  +0.002   15.2  +0.039  +0.032   2/4
+fixed 1.0R       428  55.1%  1.21  +0.096  0.049  +0.001  +0.052   12.6  +0.110  +0.076   4/4 *
+fixed 1.25R      428  50.0%  1.23  +0.117  0.055  +0.010  +0.062   15.7  +0.134  +0.093   3/4 *
+fixed 1.5R       428  43.7%  1.14  +0.081  0.060  -0.037  +0.012   13.7  +0.119  +0.025   4/4
+fixed 2.0R       428  37.4%  1.16  +0.103  0.070  -0.035  +0.010   17.2  +0.141  +0.046   4/4
+trail 0.5/0.25   428  47.4%  1.20  +0.080  0.055  -0.027  -0.068   11.4  +0.094  +0.060   4/4
+trail 0.5/0.5    428  39.5%  1.22  +0.088  0.057  -0.024  -0.068   12.7  +0.083  +0.096   3/4
+trail 0.5/1.0    428  28.0%  1.19  +0.078  0.061  -0.042  -0.101   10.3  +0.060  +0.105   3/4
+trail 0.5/2.0    428  18.2%  1.22  +0.091  0.072  -0.050  -0.144   13.3  +0.064  +0.132   4/4
+trail 1.0/0.25   428  41.6%  1.35  +0.178  0.077  +0.028  -0.048   13.0  +0.231  +0.101   4/4 *
+trail 1.0/0.5    428  36.0%  1.39  +0.199  0.081  +0.041  -0.044   13.3  +0.255  +0.117   4/4 *
+trail 1.0/1.0    428  28.5%  1.44  +0.222  0.088  +0.050  -0.051   14.3  +0.258  +0.168   4/4 *
+trail 1.0/2.0    428  22.7%  1.50  +0.254  0.097  +0.064  -0.064   15.3  +0.257  +0.249   4/4 *
+trail 1.5/0.25   428  34.1%  1.23  +0.140  0.087  -0.031  -0.126   21.5  +0.230  +0.007   3/4
+trail 1.5/0.5    428  32.0%  1.26  +0.157  0.092  -0.023  -0.131   18.7  +0.207  +0.081   3/4
+trail 1.5/1.0    428  27.3%  1.32  +0.195  0.098  +0.002  -0.121   16.6  +0.243  +0.124   4/4 *
+trail 1.5/2.0    428  21.0%  1.31  +0.190  0.107  -0.018  -0.172   21.7  +0.198  +0.179   4/4
+trail 2.0/0.25   428  33.6%  1.34  +0.218  0.105  +0.013  -0.128   20.0  +0.273  +0.136   4/4 *
+trail 2.0/0.5    428  31.3%  1.39  +0.255  0.109  +0.041  -0.107   18.3  +0.331  +0.142   4/4 *
+trail 2.0/1.0    428  28.3%  1.41  +0.269  0.114  +0.045  -0.118   18.3  +0.318  +0.195   4/4 *
+trail 2.0/2.0    428  22.9%  1.35  +0.227  0.117  -0.002  -0.184   21.5  +0.233  +0.217   4/4
+
+* = 95% interval strictly above zero (10 of 22 rows)
+
+--- THE COLUMN THAT DECIDES IT: trim20 ---
+trim20 is expectancy after deleting the 20 best trades of 428.
+
+  EVERY trailing variant goes NEGATIVE: -0.044 to -0.184.
+  EVERY fixed variant stays POSITIVE:   +0.002 to +0.062.
+
+Trailing reads better on the headline number - up to +0.269R against +0.117R -
+and it is entirely carried by a handful of runners. Delete twenty trades out
+of four hundred and it is a losing strategy. The fixed exits keep their edge
+when the same twenty are deleted, which is the property that matters for
+something you would actually run.
+
+--- WHAT TO TAKE ---
+  fixed 1.0R    +0.096R +- 0.049   trim20 +0.052   DD 12.6R   4/4 years   IS +0.110 -> OOS +0.076
+  fixed 1.25R   +0.117R +- 0.055   trim20 +0.062   DD 15.7R   3/4 years   IS +0.134 -> OOS +0.093
+
+1.0R has the lower drawdown and is positive in all four years; 1.25R has more
+expectancy and a worse year. Take 1.0R.
+
+All 22 exits are positive, which is the real signal here: the result does not
+depend on choosing the exit well. That points at the entry.
+
+--- CAVEAT ---
+These 22 rows are the same 428 trades exited 22 ways. They are not 22
+independent tests, and 10 significant cells among them is not 10 findings.
+=========================================================
