@@ -1,0 +1,71 @@
+===== THREE WAYS TO GET MORE TRADES. ALL THREE FAIL. =====
+
+The one-month challenge needs roughly nine times the monthly R. The only
+honest source of that is more trades. Three candidates were tested on NQ.
+
+--- A. A SECOND SESSION ANCHOR ---
+NQ trades nearly around the clock, so the opening range can be anchored
+anywhere. retest, OR 5 min, FVG + MA89, futures costs:
+
+  anchor (ET)     n   /mo     WR    PF    expR   CI lo   R/mo   DD_R  trim20      IS     OOS
+  03:00 London  302   6.9  50.0%  0.97  -0.015  -0.130  -0.10   24.6  -0.087  -0.011  -0.021
+  06:00         342   7.8  40.6%  0.66  -0.210  -0.317  -1.63   71.9  -0.286  -0.198  -0.227
+  08:00 premkt  374   8.5  43.6%  0.75  -0.144  -0.246  -1.22   67.8  -0.208  -0.020  -0.303
+  09:30 cash    347   7.9  57.6%  1.34  +0.147  +0.042   1.16   10.3  +0.094  +0.133  +0.167  *
+  11:00         259   5.9  51.0%  1.03  +0.013  -0.110   0.08   15.8  -0.069  -0.046  +0.090
+  13:00         284   6.5  43.3%  0.75  -0.148  -0.265  -0.96   43.9  -0.235  -0.200  -0.083
+
+Only the cash open works. This is a negative result that STRENGTHENS the main
+finding: if the edge were an artefact of the method, any anchor would show it.
+It is specific to 09:30 New York, which is where the volume actually arrives.
+
+--- B. A DIFFERENT OPENING-RANGE LENGTH ---
+  OR minutes      n   /mo     WR    PF    expR   CI lo   R/mo   DD_R
+   1 min        238   5.4  54.6%  1.20  +0.092  -0.036   0.50   16.4
+   3 min        338   7.7  55.6%  1.24  +0.106  -0.001   0.81   14.5
+   5 min        347   7.9  57.6%  1.34  +0.147  +0.042   1.16   10.3  *
+  10 min        355   8.1  52.7%  1.10  +0.047  -0.058   0.38   16.7
+  15 min        328   7.5  53.0%  1.11  +0.054  -0.055   0.40   13.3
+  30 min        243   5.5  52.3%  1.08  +0.039  -0.088   0.22   12.6
+  60 min        183   4.2  50.8%  1.02  +0.011  -0.136   0.04   11.4
+
+Every window is positive and five minutes is the peak, which is reassuring -
+a smooth hill, not a spike - but nothing else clears zero, and shorter
+windows do not produce more trades anyway.
+
+--- C. A SECOND MODEL ON THE SAME INSTRUMENT ---
+  model             n   /mo     WR    PF    expR   CI lo   R/mo   DD_R      IS     OOS
+  retest M1       349   7.9  57.6%  1.34  +0.146  +0.041   1.16   10.3  +0.137  +0.158  *
+  sweep M1        912  20.7  51.0%  1.03  +0.013  -0.052   0.28   44.7  -0.049  +0.104
+  orb M5          276   6.3  48.6%  0.94  -0.025  -0.133  -0.16   17.3  -0.023  -0.027
+  orb M1          656  14.9  49.4%  0.94  -0.028  -0.103  -0.42   45.3  -0.055  +0.013
+  sweep M5        811  18.4  49.0%  0.92  -0.040  -0.108  -0.74   43.7  -0.015  -0.075
+
+Note that FVG + MA89 HURT the ORB model here - it read +0.033R unfiltered and
+-0.025R with the filters. Those filters were selected on the retest model and
+do not transfer, which is exactly what selection-on-one-model predicts.
+
+--- D. PORTFOLIOS: MORE TRADES, WORSE RATIO ---
+  combination                        trades  /mo    total    DD     R/mo   daily corr
+  retest alone                          349  7.9    50.8R  10.3R    1.16          -
+  retest + orb M5 rr2                   625 14.2    40.4R  16.3R    0.92      +0.05
+  retest + sweep M1                    1261 28.7    63.1R  35.0R    1.43      -0.08
+  retest + orb + sweep                 1537 34.9    52.7R  29.8R    1.20        n/a
+
+The legs are genuinely uncorrelated - daily correlation +0.05 and -0.08 - so
+diversification works exactly as theory says it should. It does not help,
+because the added legs have no edge. retest + sweep raises monthly R from
+1.16 to 1.43 and raises the drawdown from 10.3R to 35.0R. Return per unit of
+drawdown falls from 0.113 to 0.041.
+
+--- E. CONCLUSION ---
+There is no second session, no better range length, and no second model. The
+configuration already in hand - retest, M1, 09:30 New York, 5-minute opening
+range, pullback window 6, fixed 1R, FVG + MA89 - is the best version of the
+only thing in this project that works.
+
+It makes 1.16R a month against a 10.3R drawdown. That is 0.58% a month at
+0.5% risk, and roughly 12 to 17 months to a 10% challenge target at a risk
+level a daily loss limit permits. Nothing tested changes that, and the search
+for something that does is now exhausted along every axis this project has.
+=========================================================
