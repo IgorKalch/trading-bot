@@ -1,0 +1,22 @@
+===== BLOCK BOOTSTRAP: DOES CLUSTERING INFLATE THE EDGE? =====
+
+retest / NQ M1 / 09:30 NY / OR 5 min / pullback 6 / fixed 1R / FVG + MA89
+349 trades across 44 months, expectancy +0.1456R
+
+  method                     95% interval on expectancy   resamples below zero
+  trade-level (independent)     +0.0416 .. +0.2493              0.29%
+  block by month                +0.0514 .. +0.2397              0.14%
+  block by quarter (15 blocks)  +0.0585 .. +0.2327              0.03%
+
+Block resampling normally WIDENS the interval, because it stops the bootstrap
+from pretending clustered outcomes are independent draws. Here it narrows it
+slightly, which means monthly and quarterly variance is close to what
+independence predicts: there is no hidden clustering propping the estimate up.
+
+Monthly R: mean +1.16R, median +0.98R, worst -5.07R, best +5.97R,
+27 of 44 months positive (61%).
+
+This is the strongest statistical support the result has had. It does not
+address the two things bootstrapping cannot: that NDXUSD is a CFD proxy for the
+NQ future, and that one-tick slippage is assumed rather than measured.
+==============================================================
