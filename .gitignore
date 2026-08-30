@@ -24,6 +24,7 @@ data/cache_*/
 reports/*
 !reports/*.txt
 !reports/README.md
+!reports/*.json
 
 # IDE
 .vscode/

@@ -1,0 +1,164 @@
+===== LITERATURE SEARCH: 209 AGENTS, 64 CANDIDATES, 16 SURVIVORS =====
+
+Eight independent search angles (peer-reviewed papers, intraday-momentum
+literature, quant blogs, Quantpedia, GitHub, evidence for and against ORB,
+failure literature, cost structure per instrument), each candidate rewritten
+into mechanical rules, then three adversarial reviewers per candidate
+(evidence provenance / specifiability / cost survival), then a completeness
+critic given every number this project has measured.
+
+209 agents, 2,394,707 tokens, 572 tool calls.
+16 survivors, 48 killed.
+
+--- SURVIVORS ---
+  * Market intraday momentum, first-half-hour signal η(r1) — Gao, Han, Li & Zhou (2018), JFE 129(2), 394–414
+      instrument: SPY (S&P 500 ETF), TAQ data. Footnote 2 verbatim: 'The results are similar when we use the S&P 500 futures, another trad
+      source: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2440866
+  * Noise Area intraday momentum ('Beat the Market') — Zarattini, Aziz & Barbon (2024), SSRN 4824172 / Swiss Finance Institute 24-97
+      instrument: SPY (S&P 500 ETF), IQFeed data. Robustness on 33 global futures: 21 commodities + 12 equity indices — and contrary to th
+      source: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4824172
+  * Gao, Han, Li & Zhou (JFE 2018) — first-half-hour → last-half-hour timing [MECHANICAL, VERIFIED]
+      instrument: SPY. Robustness on 10 further ETFs (QQQ, IWM, DIA, EEM, FXI, EFA, VWO, XLF, IYR, TLT). Futures results are claimed in fo
+      source: https://assets.super.so/e46b77e7-ee08-445e-b43f-4ffd88ae0a0e/files/ee7dac49-530b-4950-b5d0-e0b5eee08f2e.pdf — VERIFIED: fetched, is 'GHLZ_June2017.dvi', title page reads 'Market Intraday Momentum', Gao (Iowa State) / Han (UNC Charlotte) / Li (Rutgers) / Zhou (WashU), Current Version June 2017. Published: https://www.sciencedirect.com/science/article/abs/pii/S0304405X18301351 . Replication evidence: https://www.quantconnect.com/learning/articles/investment-strategy-library/intraday-etf-momentum (VERIFIED) and https://onlinelibrary.wiley.com/doi/abs/10.1002/fut.22375 (VERIFIED)
+  * Noise Area intraday momentum on ES/NQ futures (Quantitativo adaptation of Zarattini-Aziz-Barbon)
+      instrument: E-mini S&P 500 (ES) and E-mini Nasdaq-100 (NQ) futures, front month. Micro equivalents (MES multiplier $5, MNQ multiplie
+      source: https://www.quantitativo.com/p/intraday-momentum-for-es-and-nq
+  * Beat the Market: intraday momentum on SPY (Zarattini, Aziz & Barbon) — the fully specified original
+      instrument: SPY (S&P 500 ETF). Included because it is the only version where the complete rule set, the sizing formula and the 2007-
+      source: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4824172
+  * Turn of the Month in Equity Indexes (Quantpedia #41)
+      instrument: PRIMARY: E-mini / Micro E-mini S&P 500 futures (ES/MES). This is the only variant in the whole input set with a publishe
+      source: https://quantpedia.com/strategies/turn-of-the-month-in-equity-indexes
+  * FOMC Meeting Effect / Pre-FOMC Announcement Drift
+      instrument: E-mini S&P 500 futures (ES) for the intraday variants — the instrument the decay literature actually measures. SPY or ES
+      source: https://quantpedia.com/strategies/federal-open-market-committee-meeting-effect-in-stocks
+  * Option-Expiration Week Effect (Stivers & Sun)
+      instrument: S&P 100 constituents (the tested universe). Quantpedia page (verified) lists ETFs, Futures, CFDs, Stocks and says the st
+      source: https://quantpedia.com/strategies/option-expiration-week-effect
+  * Payday Anomaly (Ma & Pratt)
+      instrument: S&P 500 index. Quantpedia page (verified) lists ETFs, Futures, CFDs; Number of Traded Instruments 1; Notes to Instrument
+      source: https://quantpedia.com/strategies/payday-anomaly
+  * Pre-Holiday Effect
+      instrument: US equity market index. Quantpedia page (verified) lists ETFs, Funds, Futures, CFDs. Source paper tested indices from De
+      source: https://quantpedia.com/strategies/pre-holiday-effect
+  * zarattini-2024-momentum-spy — Noise-Area intraday momentum (Zarattini, Aziz & Barbon 2024, SSRN 4824172) on SPY and ES futures
+      instrument: SPY 1-minute (Alpaca IEX) and ES E-mini S&P 500 1-minute (Interactive Brokers, 9 quarterly contracts, volume-crossover r
+      source: https://github.com/giovannibrusco/zarattini-2024-momentum-spy
+  * Zarattini & Aziz (2023) — 5-minute ORB on QQQ [VERIFIED, MECHANICAL]
+      instrument: Invesco QQQ ETF. Confirmed: the paper never trades ES, NQ or any futures contract. Any port to index futures is your ext
+      source: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4416622 — SSRN itself returns HTTP 403 to automated fetches; I verified against the full PDF mirror at https://www.wealth-lab.com/api/discussion/download/pdf/6590-ORB-Strategy-pdf, extracted with pdftotext. Every quoted number above was read off that text.
+  * Zarattini, Aziz & Barbon — 'Beat the Market' intraday momentum (Noise Area), SPY plus a 12-equity-index futures extension [VERIFIED, FULLY MECHANICAL — but NOT an ORB, and the incoming summary mislabelled the results rows]
+      instrument: Primary: SPY. Extension (FAQ Q13): 33 global futures markets — 21 commodities and 12 equity indices — of which four are 
+      source: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4824172 — verified against the full PDF at https://alexandria.unisg.ch/bitstreams/a99aba00-f967-49b3-aceb-f544dc386e0b/download, extracted with pdftotext.
+  * Brusco — independent replication of 'Beat the Market' on SPY AND ES futures: replicates cleanly, then documents the edge compressing to zero since 2025 [VERIFIED, MECHANICAL]
+      instrument: SPY (Alpaca IEX 1-min) and ES E-mini S&P 500 futures (Interactive Brokers 1-min, quarterly contracts stitched by volume-
+      source: https://github.com/giovannibrusco/zarattini-2024-momentum-spy — repository confirmed to exist and README confirmed to contain every figure quoted.
+  * Quantitativo — Noise Area intraday momentum implemented natively on ES and NQ futures with per-contract costs [VERIFIED, MECHANICAL]
+      instrument: ES (E-mini S&P 500) and NQ (E-mini Nasdaq-100) futures.
+      source: https://www.quantitativo.com/p/intraday-momentum-for-es-and-nq — fetched and confirmed to state the rules, the per-contract cost model and every result above.
+  * DEBUNKED: Technical rules beat buy-and-hold on the S&P 500 / DJIA — Sullivan-Timmermann-White (1999) and Hsu-Kuan (2005) find nothing on mature large-cap indices
+      instrument: DJIA index, S&P 500 index and S&P 500 futures (STW 1999); DJIA, S&P 500, NASDAQ Composite and Russell 2000 (Hsu-Kuan)
+      source: https://homepage.ntu.edu.tw/~ckuan/pdf/snoop01.pdf
+
+========================================================================
+THE CRITIQUE, IN FULL
+========================================================================
+
+## 1. Which survivor plausibly beats 1.16R/month at <10R DD?
+
+**None.** State the incumbent's real figure first, because it's the bar everything else fails:
+
+13.9R/yr against 10.3R MaxDD = **MAR 1.35**; per-trade SD = 0.052·√349 = 0.97R, so monthly Sharpe = 1.16/(0.97·√7.9) = 0.42, **annualised Sharpe ≈ 1.47**. That is better than every honest out-of-sample number in the survivor set.
+
+| Candidate | Best honest OOS | Return/MaxDD per yr |
+|---|---|---|
+| Incumbent NQ retest | +0.146R, SR 1.47 | **1.35** |
+| Quantitativo NQ (90d/3%/8x) | 24.3% / MDD 24%, **no OOS at all** | 1.01 |
+| Zarattini SPY headline (final+vol target) | 19.6% / MDD 25% | 0.78 |
+| Brusco ES base (real 2024-26 OOS) | 7.8% / MDD 16.3% | 0.48 |
+| Brusco ES final (real OOS) | −2.1% / MDD 22.7% | negative |
+| Turn-of-Month ES net | ~1.5%/yr | ~0.1 |
+| FOMC (decayed, 9.2bp×8) | ~0.7%/yr | ~0.1 |
+| Payday / OpEx / Pre-holiday | 0.4–2.6%/yr gross, unreplicated or futures-failed | <0.3 |
+
+The closest thing to a real candidate is the **Noise Area BASE variant on NQ** (not the headline variant), and it is worth stating mechanically because it is the answer to Q4:
+
+- σ(t,HH:MM) = mean over the prior 90 sessions of |Close(d,HH:MM)/Open(d,09:30) − 1|
+- UB = max(Open₀₉:₃₀, PrevClose₁₆:₀₀)·(1+σ); LB = min(…)·(1−σ)
+- Decisions only at HH:00/HH:30, 10:00–15:30 ET. Flat: P>UB → long, P<LB → short.
+- **Base exit: only on a cross of the opposite band, which also reverses.** No VWAP trail.
+- Hard flat at 16:00. Size = floor(AUM·min(4, 0.02/σ_daily)/(Open·20)).
+
+**Cost/R is not the problem here, and that matters.** With the opposite-band stop, R = UB−LB ≈ 2σ·price ≈ 260 NQ points at midday. Round trip at futures tick = 0.44 pts → **cost/R = 0.17%**; on a prop CFD at 1.34 spread + 1.0 slippage = 2.34 pts → **0.9%**. Both sit *below* NQ's already-survivable 1.4%, i.e. an order of magnitude under the ~4% cliff your own table locates between DAX (+0.009R) and ES (−0.087R). Frequency is 0.61 trades/day (Brusco: 326 trades / 530 ES days) ≈ 13/month, 1.6× the incumbent.
+
+But its measured MAR is 0.48 — 2.8× worse than what you already hold. **It clears the cost test and fails the return/drawdown test.** So: no survivor qualifies.
+
+## 2. Search modality not run
+
+**The holding-horizon dimension.** Every model you tested — ORB, retest, sweep, and every literature candidate you evaluated — is intraday-flat-by-close. You searched signals × instruments × parameters × sessions, but never horizon.
+
+This matters because cost/R = cost / stop-distance, cost per round trip is fixed by the venue, and you already established cost/R is *the* binding constraint. Stop distance grows roughly with √(holding time); cost does not grow at all. Concretely, on the same seven markets:
+
+| Market | cost/R at 5-min OR | cost/R at 2×ATR(14 daily) |
+|---|---|---|
+| NQ | 1.4% | ~0.05% |
+| DAX | 4.5% | ~0.4% |
+| ES | 6.1% | ~0.5% |
+| FTSE | 10.0% | ~1.0% |
+| EuroStoxx | 23.8% | ~2.4% |
+
+**A multi-day horizon makes all seven of your dead markets cost-survivable**, including EuroStoxx, which is currently 17× over the cliff. That is a 10–30× improvement on the exact variable you identified as binding, and it is the only lever available: you already used futures-tick costs, so the cost numerator cannot be reduced further.
+
+What it would likely find: not a new signal, but the *same* structural signals working where they currently can't. The honest prediction is time-series momentum / multi-day breakout / carry at Sharpe 0.7–1.1 per market with correlation 0.5–0.8 across equity indices, ~0.2 once you add FX, rates and commodities.
+
+A note on the instrument-swap alternative, which looks attractive and isn't: NQ's 1.4% is exceptional because of a very high index level against a 0.25-point tick and a deep book. Run the arithmetic on the obvious substitutes — EURUSD raw (~0.7 pip round-trip commission-equivalent against a 10–15 pip 5-min OR ≈ 5%), XAUUSD (~$0.25 against a $4 OR ≈ 6%) — and they land in ES/YM territory, not NQ territory. The only intraday instruments in NQ's cost/R class are NQ, MNQ, and possibly BTC/ETH perpetuals on a low-fee venue (0.5bp against a ~0.4% OR ≈ 1.2%). **Instrument substitution buys you nothing intraday; horizon extension buys you 10–30×.**
+
+## 3. A class with a fundamentally different profile
+
+Yes, and it is not higher frequency — it is **breadth at a longer horizon**.
+
+Higher frequency is unavailable: the only way to trade more often without spread scaling is to *earn* the spread rather than pay it, which requires queue priority you cannot get on a prop CFD account with a deviation cap.
+
+The class that fits the cost structure is **multi-day diversified time-series momentum / breakout across 15–25 futures or CFD markets** (equity indices, FX majors, rates, energy, metals), 5–40 day holds, stop at 2–3×ATR(14 daily), 0.25% risk per market, monthly or signal-driven rebalance. Cost/R 0.05–0.5%, i.e. costs become a rounding error rather than the deciding term. Century-scale out-of-sample evidence (Moskowitz–Ooi–Pedersen; Hurst–Ooi–Pedersen), which is a different evidential class from anything in your survivor file.
+
+**The honest catch, and it is the crux of Q5:** portfolio Sharpe scales as √N in *independent* bets, so 20 markets at Sharpe 0.8 and correlation 0.2 gives portfolio Sharpe ~1.6 — comparable to what you already have. What it buys is not a bigger edge but *more bets per unit calendar time*, which is exactly what a fixed-deadline ruin race needs. What it costs is drawdown duration: TSMOM drawdowns run 12–24 months, which is compatible with a 10% static cap only if there is no time limit, and incompatible with any fast-pass requirement.
+
+Also worth flagging: **your portfolio test does not refute diversification.** You added legs with measured edges of +0.013R and −0.025R — i.e. nothing — so DD rose 10.3R→35.0R and return/DD fell 0.113→0.041 exactly as arithmetic predicts. That result refutes diversifying *into zero*, not diversification. The correct test is N legs each independently clearing +0.10R, which you have never had more than one of.
+
+## 4. Killed for a weak reason
+
+**The Quantitativo Noise Area ES/NQ port (and by extension the Zarattini base variant).**
+
+It was killed on evidence-provenance and specifiability. Neither reason survives contact with your own binding constraint:
+
+- **The cost reviewer explicitly declined to refute it**: "CANNOT REFUTE ON COSTS — the strategy clears the 0.15R kill line by roughly an order of magnitude." That is the only lens that has predicted your results correctly.
+- **The specifiability kill is closable.** The objection was that the newsletter defers its rules to the paper. The paper is in your survivor set fully specified (formulas verbatim), and Brusco's repo is an executable reference implementation with 48 unit tests. The four "free parameters" (decision grid, which stop, gap adjustment, σ estimator) are all pinned by the paper's own text.
+- **The version that was actually measured is the wrong version.** The SPY Noise Area was measured on your data at +0.067R/trade, t=0.38, decaying monotonically — but that was the **final** variant (max(band, VWAP) trail). Brusco's cross-instrument work reports that in the 2024–26 regime *the paper's hierarchy inverts*: base beats final on both SPY and ES (ES base SR 0.52 vs final −0.07). Nobody has measured the base variant on your NDXUSD M1 data.
+- It is the only candidate that simultaneously has cost/R ≈ 0.2–0.9% on NQ, 1.6× your current trade frequency, a public reference implementation, and no measurement on your own data in its currently-best-performing form.
+
+Expected outcome if you run it: MAR ~0.5, i.e. it will probably not beat the incumbent. But it is one afternoon of work on data you already hold, it tests the *base* variant specifically, and it is the only remaining intraday candidate whose failure mode would be informative rather than predicted.
+
+Second-weakest kill, for the record: **the portfolio-combination result** (see Q3) — refuted zero-edge legs, not the lever.
+
+## 5. The case that no such edge exists, and what follows
+
+**The argument, in four steps:**
+
+1. **Pass probability is a function of Sharpe alone; leverage cancels.** A prop challenge sets the target (+10%) and the ruin barrier (−10%) in the same units. Scaling risk scales both. So P(pass) depends only on the strategy's Sharpe over the challenge horizon and the number of independent bets inside it — which is precisely why your Monte Carlo saturates at 57% with 43% blow-ups *regardless of leverage*. That is not an implementation failure; it is the correct answer to the question you asked. To reach 80%+ in a one-month window you need annualised Sharpe ≈ 3.
+
+2. **No replicated intraday index strategy has Sharpe 3 net of costs.** The best honest OOS numbers in your entire survivor file are 1.24–1.34 (Zarattini, static size) and 1.11 (Brusco replication) — and both went to ~0 or negative in 2025–26 on two instruments and two independent data vendors at 0.97 daily correlation. Your own measured 1.47 is *the best number in the file*.
+
+3. **Four independent multiple-testing-corrected sweeps return nulls on exactly this market.** Sullivan–Timmermann–White: 7,846 rules, nothing on DJIA/S&P/S&P futures. Hsu–Kuan: 39,832 rules including adaptive meta-strategies, nothing on mature large caps (only NASDAQ Composite and Russell 2000 survive, attributed to market immaturity). Carchano–Pardo: 188 cyclical effects on ES/DAX/Nikkei futures, 1 survivor at ~1.5%/yr net. Mesfin: 14 intraday families on MNQ 2021–25, none above friction. Your own ORB holdout, where the best-fitted filters inverted to worst, is a fifth instance of the same result.
+
+4. **Every candidate with a genuine post-publication OOS test decayed.** Gao et al. → Rosa (JFM 2022, "predictability disappears"), Baltussen (ES R²_OOS −1.68), QuantConnect (SR −0.628). Bondarenko–Muravyev → NY Fed, "The Disappearing Overnight Drift," 2026. Zarattini → Brusco, negative on both instruments since 2025. This is the McLean–Pontiff base rate operating on the most competed intraday market in the world.
+
+**What follows: neither of your two options as stated.**
+
+Do not scale ambition down to 0.58%/month, and do not change instrument class. **Change the constraint, not the strategy.** MAR 1.35 at Sharpe 1.47 is a top-decile result — most professional CTAs run MAR 0.3–0.7. It fails only against a one-month 1:1 ruin race, which is a format problem, not an edge problem. Specifically:
+
+- **Deploy the NQ retest against a mandate it can win**: own capital, or a firm with a static (not trailing) drawdown and no time limit. At Sharpe 1.47 a 10% target with a 10% barrier and unlimited time is a waiting problem with high pass probability, not a coin flip. Do not attempt the one-month format — your own Monte Carlo says 0%, and that number is structural.
+- **Spend the next unit of effort on horizon, not on more intraday signals.** It is the only lever that moves cost/R by 10–30×, it resurrects all five markets you killed on cost, and it is the one dimension of the search space you have never touched. Concretely: re-run your existing model family on daily bars with 2–3×ATR stops across the seven indices you already have data for, then extend the universe to FX/rates/commodities for uncorrelated breadth.
+- **Run the Noise Area base variant on NQ once** (Q4), because it is cheap and it is the only intraday candidate not yet falsified in the form that currently works.
+- **Only add portfolio legs that independently clear +0.10R.** Your 10.3R→35.0R result is the correct penalty for doing otherwise, and it will recur.
+
+The realistic ceiling under any 10% drawdown cap is roughly 8–13%/yr regardless of strategy, because MAR tops out near 1.4 across everything documented. Any plan that requires 10% in a month is requiring a MAR the literature does not contain.
