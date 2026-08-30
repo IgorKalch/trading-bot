@@ -76,10 +76,18 @@ class SweepStrategy:
     def __init__(self, cfg: StrategyConfig):
         self.cfg = cfg
         self._st: _DayState | None = None
+        # Rolling session extremes, carried across days so the model can sweep
+        # PDH/PDL and PWH/PWL as well as the overnight range (Додаток З).
+        self._sessions: list[tuple[float, float]] = []
+        self._cur: tuple[float, float] | None = None
 
     # ------------------------------------------------------------------ API
 
     def on_day_start(self, ctx: DayContext) -> None:
+        if self._cur is not None:
+            self._sessions.append(self._cur)
+            self._sessions = self._sessions[-5:]
+            self._cur = None
         # SHORT fades a sweep of the high, LONG fades a sweep of the low.
         self._st = _DayState(ctx=ctx, sides={s: _SideState() for s in Side})
 
@@ -92,6 +100,11 @@ class SweepStrategy:
             return []
         s = st.ctx.session
         st.fvg.update(bar)
+        self._cur = (
+            (bar.high, bar.low)
+            if self._cur is None
+            else (max(self._cur[0], bar.high), min(self._cur[1], bar.low))
+        )
 
         # -- overnight range: everything before the cash open
         if bar.time < s.session_open:
@@ -104,6 +117,18 @@ class SweepStrategy:
         events: list[StrategyEvent] = []
         if not st.opened:
             st.opened = True
+            if w.reference != "overnight":
+                # Replace the overnight range with the previous session's or the
+                # previous week's extremes; the state machine is unchanged.
+                back = 1 if w.reference == "prev_day" else 5
+                hist = self._sessions[-back:]
+                if len(hist) < back:
+                    st.sides[Side.LONG].phase = _Phase.DONE
+                    st.sides[Side.SHORT].phase = _Phase.DONE
+                    return [SkipEvent(bar.time, "no_history", f"need {back} prior sessions")]
+                st.pre_high = max(h for h, _ in hist)
+                st.pre_low = min(low for _, low in hist)
+                st.pre_bars = w.min_pre_bars
             if st.pre_bars < w.min_pre_bars or st.pre_high is None or st.pre_low is None:
                 st.sides[Side.LONG].phase = _Phase.DONE
                 st.sides[Side.SHORT].phase = _Phase.DONE

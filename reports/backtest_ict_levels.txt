@@ -1,0 +1,65 @@
+===== THE "INDICES VLAD GAP" MATERIAL, TESTED =====
+
+Source: three new videos in grafik-creen (a 1h53m strategy course plus two
+backtest sessions), 2560x1440 screen recordings with no subtitle track. Frames
+were extracted with ffmpeg and read directly; the course shows its written
+algorithm as a Notion page, which is where the rules below come from.
+
+--- WHAT THE MATERIAL ACTUALLY IS ---
+An ICT / smart-money framework, stated by the author as five ordered elements:
+time, liquidity, POI (order block / rejection block / inefficiency: FVG, VI,
+inversion FVG, BPR), manipulation as the origin or continuation of order flow,
+and target. The operative sentences are about reading a narrative - "before the
+NYSE open I define the main narrative of price action so that I understand which
+liquidity the manipulation after 16:30 may be aimed at" - and about the MMXM
+market model, breaker plus FVG on m15-m5, and respecting zones of interest.
+
+That is discretionary by construction. It is the same class of material as the
+YouTube sources reviewed earlier: a way of seeing, not a decision rule.
+
+--- WHAT WAS MECHANICALLY EXTRACTABLE AND NEW ---
+Two things, and they are genuinely new to this project:
+
+1. The level set. The author sweeps PDH/PDL and PWH/PWL - the previous session's
+   and previous week's extremes - as "the key liquidity raid inside the day that
+   seeds a new order flow". Every sweep test here so far used the OVERNIGHT
+   range instead.
+2. The NY Midnight / true day open as a magnet. Not tested, see below.
+
+Implemented as sweep.reference = overnight | prev_day | prev_week, leaving the
+state machine (sweep the level, close back inside, fade with the stop beyond the
+sweep extreme) untouched, so only the level changes.
+
+--- RESULT: NOTHING CLEARS ZERO ---
+Dukascopy, futures-tick costs, 44 months.
+
+  market  reference     tf     n   /mo     WR    PF    expR   CI lo   R/mo    IS     OOS
+  NQ      overnight     M5   811  18.4  49.0%  0.92  -0.040  -0.108  -0.74  -0.015  -0.075
+  NQ      prev_day      M5   422   9.6  52.1%  1.07  +0.034  -0.060  +0.32  +0.071  -0.019
+  NQ      prev_week     M5   228   5.2  47.8%  0.92  -0.040  -0.168  -0.21  +0.048  -0.164
+  NQ      prev_day      M1   447  10.2  50.6%  1.00  -0.000  -0.094  -0.00  -0.045  +0.064
+  NQ      prev_week     M1   234   5.3  52.1%  1.07  +0.036  -0.093  +0.19  -0.003  +0.091
+  ES      prev_day      M5   389   8.8  49.6%  0.94  -0.030  -0.130  -0.27  +0.060  -0.152
+  ES      prev_day      M1   416   9.5  47.6%  0.86  -0.079  -0.177  -0.74  -0.105  -0.042
+  DAX     prev_day      M5   339   7.7  44.2%  0.75  -0.145  -0.254  -1.11  -0.199  -0.061
+  DAX     prev_week     M1   158   3.6  44.3%  0.76  -0.139  -0.298  -0.50  -0.196  -0.050
+
+Eighteen cells across three markets and two timeframes. Not one has a 95%
+interval above zero. The best, NQ prev_day on M5 at +0.034R, reads +0.071
+in-sample and -0.019 out-of-sample - the sign flips, which is the pattern this
+project has now seen four times and learned to distrust.
+
+PDH/PDL does beat the overnight range on NQ (+0.034R against -0.040R) and halves
+the drawdown, 43.7R to 17.6R. That is a better level set. It is not an edge.
+
+--- NOT TESTED ---
+The NY Midnight / true day open as a magnet. It is mechanically definable - the
+price at 00:00 New York - but it is a target rule rather than an entry rule, and
+this project has no model whose exit it would improve. Worth revisiting only if
+an entry with an edge ever needs a better target.
+
+--- WHERE THIS LEAVES THINGS ---
+The material adds a framework and a better level set, and no edge. The NQ retest
+model at +0.146R remains the only thing measured in this project that beats its
+own error bar.
+===================================================

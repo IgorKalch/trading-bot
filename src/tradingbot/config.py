@@ -139,6 +139,11 @@ class RetestConfig(BaseModel):
 class SweepConfig(BaseModel):
     """Overnight-range liquidity sweep (Додаток Ж). strategy.name = sweep."""
 
+    # Which level the sweep is measured against (Додаток З):
+    #   overnight  - range built before the cash open (default)
+    #   prev_day   - previous session high/low  (PDH/PDL)
+    #   prev_week  - highest high / lowest low of the last 5 sessions (PWH/PWL)
+    reference: Literal["overnight", "prev_day", "prev_week"] = "overnight"
     min_pre_bars: int = 30  # skip the day if the overnight session is too thin
     min_sweep_points: float = 0.0  # how far past the edge counts as a sweep
     min_sweep_range_frac: float = 0.0  # ... or as a fraction of the range width
