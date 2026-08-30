@@ -1,0 +1,83 @@
+===== THE HORIZON HYPOTHESIS, TESTED =====
+
+The literature search named holding horizon as the one dimension never
+searched, on the argument that cost/R is cost divided by stop distance, stop
+distance grows with holding time, and cost does not. Built the universe and
+the backtester and tested it.
+
+--- WHAT WAS BUILT ---
+23 markets of DAILY bars from Dukascopy, five asset classes, up to 18 years:
+  equity  NQ ES YM DAX SX5E FTSE NKY        (2012-2026)
+  fx      EURUSD GBPUSD USDJPY AUDUSD USDCAD USDCHF   (2008-2026)
+  metals  XAUUSD XAGUSD COPPER
+  energy  BRENT WTI NATGAS
+  bonds   BUND GILT USTB     crypto  BTCUSD
+
+tools/daily.py - a separate backtester, because the intraday engine flattens
+at flat_time by construction and cannot hold a position overnight.
+
+--- TWO BUGS FOUND WHILE BUILDING IT, BOTH INFLATING RESULTS ---
+1. R was computed against the TRAILED stop rather than the initial one, which
+   shrinks the denominator on winners. First run reported +0.55R per trade on
+   NQ and PF 2.17. After the fix: -0.003R and PF 0.99.
+2. Entry fired on the persistent signal STATE, so after a stop-out the system
+   re-entered the same direction on the very next bar. That manufactures
+   whipsaw. Fixed to enter only on a fresh signal transition.
+   Trade count fell from 4,601 to 2,233 on donchian-20.
+
+--- THE HYPOTHESIS IS HALF RIGHT ---
+It delivers exactly what was predicted on cost and on per-trade edge:
+
+  system            trades   /mo     WR    PF     expR
+  donchian 200 *       241   1.4  19.5%  1.56   +0.446
+  donchian 300 *       173   1.0  16.8%  1.55   +0.459
+  macross 300 *        344   2.0  20.1%  1.41   +0.320
+  donchian 200        250   1.4  38.8%  1.41   +0.168
+  tsmom 20           9127  51.9  33.3%  0.99   -0.002
+  macross 20         5855  33.3  34.7%  0.99   -0.004
+  (* = no trailing stop, exit on signal flip only)
+
++0.446R per trade is THREE TIMES the intraday NQ edge of +0.146R. Long-horizon
+trend following on a diversified universe is real, and costs are irrelevant to
+it - running the same test at zero cost moves donchian 200 from +0.263R to
++0.273R. Short lookbacks are all dead: tsmom and macross under 100 days sit at
+PF 0.99 across thousands of trades.
+
+--- AND IT FAILS ON THE ONLY METRIC THAT MATTERS HERE ---
+Both systems scaled so simultaneous risk equals 1R:
+
+  system                            months   R/month     DD    annual MAR   +months
+  intraday NQ retest                    44   +1.155    8.32R      1.67        61%
+  daily trend, 23 markets              116   +0.040    2.35R      0.21        26%
+
+Monthly correlation between them: -0.19. They genuinely diversify - the trend
+leg is simply too weak to be worth adding, and every blend lands between the
+two, closer to the weaker one.
+
+Trade frequency is why. donchian 200 produces 1.4 trades a month across
+TWENTY-THREE markets. At +0.446R that is 0.6R a month of gross edge before
+the drawdown clustering that comes from holding correlated positions.
+
+--- WHAT THE TARGET ACTUALLY ASKS FOR ---
+  3R/month at a 10R drawdown = monthly MAR 0.3 = ANNUAL MAR 3.6
+  6R/month at a 10R drawdown = monthly MAR 0.6 = ANNUAL MAR 7.2
+
+  measured here, intraday NQ:                 annual MAR 1.35 - 1.67
+  measured here, daily trend on 23 markets:   annual MAR 0.21
+  professional CTAs, documented:              annual MAR 0.30 - 0.70
+  best honest number in the literature file:  annual MAR 1.35
+
+The target is between 2.7x and 5.3x the best result this project has produced,
+and roughly 5x to 10x what the trend-following industry achieves. Nothing in
+the 64 candidates the literature search surfaced comes close either.
+
+--- CONCLUSION ---
+The most profitable system that can be defended remains the intraday NQ retest
+at annual MAR 1.35-1.67. The horizon extension was worth testing - the
+reasoning behind it was sound and its per-trade edge is genuinely larger - but
+it trades too rarely to convert that edge into monthly return, and adding it
+to the incumbent dilutes rather than improves.
+
+3-6R a month at a 10R drawdown is not a strategy that has not been found yet.
+It is a MAR that does not appear in the documented record.
+==========================================
