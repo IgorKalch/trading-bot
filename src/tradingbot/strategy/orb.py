@@ -162,6 +162,12 @@ class OrbStrategy:
             skip("or_width_min", f"OR width {orng.width:.1f} < min {f.min_or_width_points}")
         elif f.max_or_width_points and orng.width > f.max_or_width_points:  # §7.2
             skip("or_width_max", f"OR width {orng.width:.1f} > max {f.max_or_width_points}")
+        elif f.min_or_width_pct and orng.width / orng.high * 100 < f.min_or_width_pct:  # §7.2
+            skip("or_width_pct_min",
+                 f"OR width {orng.width / orng.high * 100:.3f}% < min {f.min_or_width_pct}%")
+        elif f.max_or_width_pct and orng.width / orng.high * 100 > f.max_or_width_pct:  # §7.2
+            skip("or_width_pct_max",
+                 f"OR width {orng.width / orng.high * 100:.3f}% > max {f.max_or_width_pct}%")
         elif (
             f.max_or_width_atr_mult
             and st.ctx.atr_d1

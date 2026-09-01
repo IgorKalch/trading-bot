@@ -76,6 +76,11 @@ class FiltersConfig(BaseModel):
     max_or_width_points: float = 0.0
     min_or_width_points: float = 0.0
     max_or_width_atr_mult: float = 0.0  # OR width <= mult * ATR(atr_period, D1)
+    # Opening-range width as a PERCENTAGE of price. Volatility-neutral, unlike
+    # the absolute point thresholds above: on an index that doubles, a fixed
+    # point threshold silently becomes a date filter (Додаток И).
+    min_or_width_pct: float = 0.0
+    max_or_width_pct: float = 0.0
     atr_period: int = 14
     # Relative volume of the OR window vs the same window on previous days.
     min_or_rvol: float = 0.0  # e.g. 1.0 = require at least average volume

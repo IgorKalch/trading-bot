@@ -1,0 +1,95 @@
+===== TYPE OPEN + INITIAL BALANCE (Garry / Hnurewnik) =====
+
+Source: TO_IB/iborrotd.mp4, a 76-minute screen recording showing the PDF
+"Garry_Hnurewnik_Type Open + Initial Balance Setup". Frames extracted with
+ffmpeg and read directly. Same Hnurewnik as the original ORB material.
+
+--- WHAT THE SOURCE CLAIMS ---
+Slide 2: "we take only two open types, Open Test Drive and Open Rejection
+Reverse, and the interaction of those types with the previous day's profile
+within the formation of the Initial Balance".
+
+Slide 3: "the main idea is NOT to use types we cannot identify as OTD/ORR,
+because then we have a high chance of not getting price extension". Two
+backtests, FDAX and NQ, one year, Initial Balance and a 5-minute chart, entry
+model 5m BOS, FDAX from Xetra and NQ from RTH.
+
+Slide 4, FDAX 2024, Xetra hours, 196 positions:
+    110 IB extension     RR 1:1 = 72%    1:1.5 = 50.4%   1:2 = 31.5%
+     85 Open Type        RR 1:1 = 76.4%  1:1.5 = 52.9%   1:2 = 45.88%
+The first approach is described as classic IB extension "with FLEXIBLE stop
+placement depending on context".
+
+At 1:1 a 76.4% win rate is +0.528R per trade before costs. That would be three
+and a half times the best edge this project has measured anywhere.
+
+--- FINDING 1: THE PREMISE IS ALMOST ALWAYS TRUE ---
+Measured over 907 NQ and 940 DAX sessions, first hour as the Initial Balance:
+
+                          NQ      DAX
+  IB extends either way  96.7%   97.2%
+  extends up             62.4%   65.9%
+  extends down           55.5%   59.6%
+  BOTH sides (whipsaw)   21.2%   28.2%
+  one side only          75.5%   69.0%
+
+"The IB will extend" is not information. It happens 97% of the time. The only
+question is direction, and the only real risk is the 21-28% of days that take
+both sides.
+
+The reversal-type open proxy - an excursion of at least 15% of the IB width in
+the first 30 minutes, followed by trading back through the open - barely moves
+it: 97.3% against 95.7% on NQ. A 1.6 point difference on the variable the whole
+setup is built around.
+
+--- FINDING 2: WHAT ACTUALLY SEPARATES DAYS IS IB WIDTH ---
+                        extends   BOTH sides
+  NQ  narrow IB (<med)   98.7%      28.9%
+  NQ  wide IB   (>=med)  94.7%      13.4%
+  DAX narrow IB          98.5%      34.5%
+  DAX wide IB            96.0%      21.9%
+
+A wide first hour halves the chance of a two-sided day. That is the opposite of
+the folk claim that a narrow IB predicts a trend day, and it is the one
+conditioning variable in this material that survives measurement.
+
+--- FINDING 3: IB EXTENSION AS A MECHANICAL BREAKOUT ---
+orb model, 60-minute opening range, M5, futures-tick costs:
+
+  market  min IB width   exit    n     WR     PF    expR   CI lo  DD_R   by year
+  NQ      none           1:1   340  54.1%  1.15  +0.040  -0.033  14.0  -0.10/+0.12/+0.08/+0.11
+  NQ      0.9% of price  1:1    83  56.6%  1.46  +0.087  -0.036   2.0  +0.03/+0.14/+0.16/+0.03
+  NQ      0.9% of price  1:2    83  56.6%  1.53  +0.100  -0.030   2.0  +0.05/+0.16/+0.14/+0.07
+  DAX     none           1:1   444  51.6%  1.06  +0.020  -0.055  17.9  -0.01/+0.15/-0.03/-0.05
+  DAX     0.7% of price  1:2    40  55.0%  2.05  +0.184  -0.037   1.9  one year carries it
+
+Against the source's claimed 72% at 1:1 on FDAX, the mechanical version measures
+51.6%. A twenty point gap.
+
+The likely explanation is in the source's own slide: "flexible stop placement
+depending on context". A discretionary stop is precisely how a 72% win rate at
+1:1 is produced - the stop goes where it will not be hit, which shrinks R after
+the fact and cannot be reproduced by any rule.
+
+--- A TRAP CAUGHT WHILE TESTING ---
+The first version of the width filter used absolute points, and NQ at min 120
+points read PF 1.50 with a 3.1R drawdown and its interval above zero. It was
+largely a DATE filter: the share of days with IB wider than 120 points runs
+34.8% in 2023, 52.9% in 2024, 70.4% in 2025 and 92.9% in 2026, because the index
+went from 12,000 to 29,000. Median IB width as a PERCENTAGE of price is stable
+across those years at 0.64-0.81%, so the filter was rewritten as a percentage
+(filters.min_or_width_pct) and the artefact disappears.
+
+The percentage version is the honest one: NQ at 0.9%, 83 trades, PF 1.53,
++0.100R, drawdown 2.0R, and all four years positive - but the interval still
+includes zero at 83 trades.
+
+--- WHERE IT STANDS ---
+  incumbent NQ retest      349 trades  +0.146R  DD 10.3R  1.16R/mo  annual MAR 1.35
+  NQ IB-wide breakout       83 trades  +0.100R  DD  2.0R  0.19R/mo  annual MAR 1.13
+
+Comparable MAR at a fifth of the frequency, so not an improvement on its own.
+Its value, if any, is that it fires later in the day than the retest model and
+may be uncorrelated with it - which is the one combination this project has
+never had, since every previous portfolio leg had no edge to contribute.
+===========================================================
