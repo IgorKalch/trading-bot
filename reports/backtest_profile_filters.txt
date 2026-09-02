@@ -1,0 +1,122 @@
+===== TEN MARKET PROFILE FILTERS, THIRTY CELLS, ONE DIAGNOSTIC =====
+
+The brief: raise profitability, or cut drawdown by rejecting trades that lose.
+So the metric is not expectancy. Expectancy rises automatically whenever a
+filter trades less and the remaining sample happens to be luckier. The two
+numbers that decide a filter are:
+
+  %tr vs %loss   what fraction of TRADES it keeps against what fraction of the
+                 total LOSSES it keeps. A filter that keeps 40% of trades and
+                 40% of the losses has separated nothing - it shrank the sample.
+  MAR            annualised return over maximum drawdown. This holds the
+                 drawdown constant, so a rule cannot look good by trading less.
+
+Ten hypotheses, PRE-SPECIFIED from Market Profile theory rather than scanned,
+each with a stated reason to exist, against three live models on NQ. Thirty
+cells; at 5% roughly 1.5 false positives are expected by chance.
+
+Infrastructure: tools/mprofile.py builds a real TPO profile from one-minute
+highs and lows - POC, value area, VAH, VAL, single prints, poor highs and lows,
+naked POCs, balance and trend days. Bin height is the prior 14-day range over
+120, never a fixed number of points, so the histogram cannot become a date
+filter as the index level grows. Only features complete BEFORE the session's
+first tick are used as filters: yesterday's profile, and where today opened
+relative to it.
+
+--- THE DRIVE MODEL (896 trades, +0.0922R, drawdown 11.6R, MAR 1.93) ---
+  filter                          kept  %tr %loss     WR    PF     expR   DD_R    MAR
+  (unfiltered)                     896  100   100  45.1%  1.18  +0.0922   11.6   1.93
+  open outside value               601   67    66  45.9%  1.21  +0.1038   19.1   0.89
+  open inside value                295   33    34  43.4%  1.13  +0.0686   12.9   0.43
+  open above VAH only              345   39    38  45.5%  1.22  +0.1087    7.4   1.38
+  side agrees with open vs POC     435   49    52  42.8%  1.07  +0.0398   11.9   0.40
+  yesterday was a balance day      100   11    11  45.0%  1.12  +0.0575    9.0   0.21
+  yesterday was NOT a trend day    746   83    84  45.0%  1.18  +0.0887   13.3   1.35
+  gap under 0.25 ATR               413   46    47  44.1%  1.24  +0.1239    9.5   1.46
+  heading toward a naked POC       295   33    33  44.4%  1.18  +0.0907    9.6   0.76
+  yesterday's range under 1.0 ATR  572   64    64  44.9%  1.17  +0.0869   10.4   1.30
+  window width 0.15-0.45 ATR       589   66    71  43.3%  1.18  +0.0995   17.8   0.90
+
+EVERY filter lowers MAR. The unfiltered model is the best version of itself.
+
+--- THE RETEST MODEL (321 trades, +0.1560R, drawdown 8.3R, MAR 1.65) ---
+  heading toward a naked POC       119   37    35  60.5%  1.57  +0.2217    3.3   2.40
+  yesterday was NOT a trend day    266   83    84  56.0%  1.35  +0.1479    5.2   2.05
+  open inside value                106   33    33  57.5%  1.40  +0.1642    4.1   1.28
+  open outside value               215   67    67  55.8%  1.36  +0.1520    7.4   1.21
+  window width 0.15-0.45 ATR       201   63    70  51.2%  1.09  +0.0429   13.5   0.17
+
+--- THE CONFLUENCE MODEL (737 trades, +0.0760R, drawdown 8.4R, MAR 1.82) ---
+  yesterday was NOT a trend day    616   84    84  51.1%  1.23  +0.0872    7.8   1.88
+  yesterday's range under 1.0 ATR  473   64    62  52.2%  1.34  +0.1209    8.8   1.77
+  gap under 0.25 ATR               330   45    44  51.8%  1.30  +0.1105    6.0   1.66
+  open above VAH only              291   39    39  50.5%  1.29  +0.1068    5.4   1.57
+
+===== THE DIAGNOSTIC, AND IT IS THE WHOLE ANSWER =====
+
+In 29 of 30 cells, %loss lands within a few points of %tr. Read the two columns
+side by side: 67/66, 39/38, 46/47, 33/33, 64/64, 83/84, 37/35, 84/84, 45/44,
+39/39. These filters do not separate winners from losers. They shrink the
+sample, and expectancy then moves around by the amount sampling noise permits.
+
+That is not a subtle statistical failure - it is the filters having no relation
+to the outcome. And it is visible without any test of significance.
+
+The one exception, the only cell in thirty where the rejected trades actually
+LOST money: the confluence model with yesterday's range under 1.0 ATR.
+Expectancy +0.0760 -> +0.1209, lower bound +0.0346, and R/mo essentially
+unchanged at +1.273 -> +1.299 because it keeps the trades that matter. Its MAR
+is 1.77 against 1.82 unfiltered, so it does not clear the bar either, but it is
+the only lead in the file and it is the only rule whose mechanism is not
+Market-Profile-shaped: it is a volatility-regime filter wearing profile clothes.
+
+===== WHY THE TWO APPARENT WINNERS ARE NOT WINNERS =====
+
+Two cells beat unfiltered MAR on the retest model, and both fail on inspection.
+
+NAKED POC (MAR 1.65 -> 2.40). It keeps 37% of trades and 35% of the losses - no
+separation. Its whole gain is a drawdown falling from 8.3R to 3.3R, and a
+maximum drawdown measured on 119 trades is one of the noisiest statistics in
+this project. R/mo falls from +1.138 to +0.660, and the trades it rejects
+averaged +0.1174R - it is discarding profit. Decisively: in-sample +0.0962
+against out-of-sample +0.3890. An effect that lives almost entirely in the
+second half of the data is a sampling artefact, not a rule.
+
+NOT A TREND DAY (MAR 1.65 -> 2.05). Keeps 83% of trades and 84% of the losses.
+The trades it REJECTS averaged +0.1954R - better than the ones it keeps. It
+wins on MAR purely because removing a sixth of the trades happened to clip the
+drawdown path. Rejecting your best trades is not a filter.
+
+===== WHAT THIS SETTLES =====
+
+The Market Profile filter family does not work on these models. Not "is not
+significant" - does not separate winners from losers at all, in thirty
+pre-specified cells, on three models with independent entry logic.
+
+This agrees with what the open-type measurement already said: the classification
+carries no information. It now extends to the rest of the tradition - value area
+location, the POC, naked POCs, balance and trend days. The one variable that
+showed anything was yesterday's RANGE, which is volatility, not profile.
+
+Practical consequence: leave all three models unfiltered. The drive model's
+12.1R drawdown is not reducible this way. The way to cut portfolio drawdown
+remains what the scaling work already established - add uncorrelated legs, which
+took the three-leg portfolio to a 3.80R drawdown without discarding a single
+trade.
+
+===== HONEST LIMITS =====
+- Thirty cells, so about 1.5 chance positives were expected. Two cells beat the
+  unfiltered MAR, which is exactly the expected count, and both fail inspection.
+  That is the correct reading, not "two filters work".
+- Thresholds inside the hypotheses (0.25 ATR for the gap, 1.0 ATR for the prior
+  range, 0.15-0.45 ATR for the window, 1.0 ATR for the naked POC distance) were
+  each chosen once, before running, and not scanned. Scanning them would find
+  better-looking cells and none of them would mean anything.
+- Balance and trend day definitions are mine, not Dalton's - a trend day here is
+  a range over 1.1 ATR closing in the outer 20%, a balance day a value area
+  holding over 55% of a range under 1.0 ATR. Both land at plausible frequencies
+  (16% and 11% of NQ sessions), but a different definition would give different
+  numbers. Given that the balance-day cell has 100 trades and the widest
+  confidence interval in the table, this is not where the answer hinges.
+- NQ only. The models are only positive on NQ, so filtering them elsewhere would
+  be filtering noise.
