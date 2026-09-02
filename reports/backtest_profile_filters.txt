@@ -120,3 +120,49 @@ trade.
   confidence interval in the table, this is not where the answer hinges.
 - NQ only. The models are only positive on NQ, so filtering them elsewhere would
   be filtering noise.
+
+===== FOLLOW-UP: THE ONE LEAD, TESTED AS A DOSE-RESPONSE, IS DEAD =====
+
+The single cell worth a second look was the confluence model with yesterday's
+range under 1.0 ATR - the only one of thirty where the rejected trades lost
+money. It is a volatility filter, not a profile filter, so tools/volregime.py
+tests it as one.
+
+Deliberately NOT with another threshold. A threshold scan on a lead found in
+thirty cells will always produce a better-looking number and it will always mean
+nothing. What is hard to fake is a DOSE-RESPONSE: sort every trade into
+quintiles of the conditioning variable and ask whether expectancy moves
+monotonically. One good bucket is noise; a gradient across five is a
+relationship.
+
+Five trailing-volatility measures, all lagged so today cannot see itself:
+yesterday's range over its own 14-day mean, ATR5/ATR40, ATR14/ATR40,
+realised vol 5 over 20, and the absolute ATR as a percent of price. Three
+models. Fifteen combinations.
+
+  NQ / confluence, quintiles lowest volatility first:
+    prior_range_atr    +0.068  +0.144  +0.022  +0.157  -0.004    rho -0.30
+    atr5_over_atr40    +0.223  -0.057  +0.206  -0.146  +0.168    rho -0.50
+    atr14_over_atr40   +0.056  +0.014  +0.166  +0.058  +0.100    rho +0.60
+    rv5_over_rv20      +0.128  +0.121  +0.007  +0.019  +0.115    rho -0.60
+    atr14_pct          +0.156  +0.014  +0.025  +0.100  +0.084    rho -0.10
+
+  NQ / retest:      rho +0.20, +0.00, -0.60, +0.20, +0.40
+  NQ / drive:       rho -0.30, +0.00, -0.20, +0.20, -0.60
+
+NOT ONE of the fifteen shows a gradient. The rho values scatter between -0.60
+and +0.60, which is what five buckets of noise look like.
+
+And the specific cell that started this is explained outright. Its quintiles run
++0.068, +0.144, +0.022, +0.157, -0.004 - buckets two and four are the good ones,
+one, three and five are not. There is no relationship to volatility at all; the
+1.0 ATR threshold happened to fall where it separated a lucky pair of buckets
+from an unlucky trio. That is threshold placement, and it is exactly the failure
+mode the dose-response test exists to catch.
+
+So the lead is closed, and the count is now honest: thirty pre-specified cells
+produced one apparent positive, the number chance predicts, and it did not
+survive the first test that could distinguish a relationship from a threshold.
+
+Both families are closed. Market Profile structure carries nothing on these
+models, and neither does trailing volatility.
