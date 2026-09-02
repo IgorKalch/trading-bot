@@ -1,0 +1,190 @@
+===== FOUR MODELS x SEVEN MARKETS, EACH JUDGED ALONE =====
+
+Two questions, answered separately. First: do the existing models have an edge
+on any market other than NQ, standing on their own rather than as portfolio
+legs? Second: does Dalton's open-type classification - the "Type Open" material
+in TO_IB/iborrotd.mp4 - produce a third strategy?
+
+Data: Dukascopy M1, 2023-01..2026-08, roughly 900 sessions per market. Each
+market is run at TWO cost levels, because on most of them the gap decides the
+answer:
+  futures  one tick of spread plus one of slippage, an exchange fill
+  CFD      the broker spread measured inside the entry window, plus half again
+
+  market  symbol       price   spread       source   futures     CFD
+  NQ      NDXUSD       19884     1.42     measured      0.50    2.13
+  ES      SPXUSD        5654     0.51     measured      0.50    0.77
+  RTY     RTYUSD        2108     0.17 interpolated      0.20    0.25
+  YM      YMUSD        41562     3.32 interpolated      2.00    4.99
+  DAX     DEUIDXEUR    19346     1.44     measured      1.00    2.15
+  SX5E    SX5EEUR       4996     0.40 interpolated      2.00    0.60
+  FTSE    UK100GBP      8286     0.66 interpolated      1.00    0.99
+
+The four spreads marked interpolated have no spread file and are set at 0.008%
+of price, the middle of the band the three measured ones occupy (0.0067% NQ,
+0.0088% ES, 0.0078% DAX). SX5E is the weakest of those guesses - a real
+EuroStoxx CFD spread is likely wider than 0.40 - but SX5E is heavily negative
+under every model, so the guess changes no conclusion.
+
+--- 1. THE RETEST MODEL, MARKET BY MARKET (futures cost) ---
+  market      n      WR     PF     expR   CI lo   DD_R      IS     OOS
+  NQ        326   56.1%   1.38   +0.157  +0.046    8.3  +0.149  +0.168
+  ES        347   45.5%   0.85   -0.084  -0.201   33.6  +0.007  -0.220
+  RTY       344   50.3%   1.04   +0.021  -0.089   19.8  -0.026  +0.087
+  YM        295   49.2%   1.00   -0.002  -0.121   17.4  -0.073  +0.079
+  DAX       335   51.6%   1.04   +0.018  -0.095   23.2  +0.016  +0.021
+  SX5E      260   40.4%   0.56   -0.321  -0.459   83.5  -0.388  -0.241
+  FTSE      323   46.4%   0.83   -0.099  -0.219   32.5  -0.120  -0.072
+
+NQ reproduces (+0.157R against the published +0.146R) and is the ONLY market
+whose lower bound clears zero. Nothing changed: this is the cost/R story again.
+At prop CFD cost even NQ falls to +0.113R with a lower bound of exactly +0.000.
+
+--- 2. THE IB CONFLUENCE MODEL (futures cost) ---
+  market      n      WR     PF     expR   CI lo   DD_R      IS     OOS
+  NQ        744   50.8%   1.19   +0.073  +0.005    9.2  +0.074  +0.071
+  ES        717   49.1%   1.11   +0.047  -0.027   13.1  +0.061  +0.028
+  RTY       740   51.1%   1.10   +0.035  -0.027   14.5  +0.033  +0.037
+  YM        737   47.4%   1.06   +0.024  -0.044   15.8  +0.033  +0.011
+  DAX       743   44.3%   1.04   +0.021  -0.057   27.4  -0.015  +0.072
+  SX5E      755   43.7%   0.83   -0.099  -0.177   90.2  -0.099  -0.098
+  FTSE      749   42.3%   0.90   -0.054  -0.130   57.9  -0.096  +0.003
+
+Same shape, and worth noting for what it is NOT: four markets are weakly
+positive but not one of them clears zero. This is a model that needs a portfolio
+to be worth trading, and that is a different thing from a strategy.
+
+--- 3. THE IB EXTENSION MODEL: closed ---
+DAX reads +0.182R on 49 trades and ES +0.100R on 79, both with lower bounds well
+below zero, and both markets take the trade about once a month. NQ, the only
+market with a usable sample at 243 trades, reads +0.047R with a lower bound of
+-0.057. There is nothing here at any sample size worth acting on.
+
+===== 4. THE DALTON OPEN TYPES: THE CLAIM DOES NOT REPLICATE =====
+
+Mechanical definitions on closed 5-minute bars, thresholds as fractions of the
+prior 14-day range so they cannot become date filters:
+  OD   drives from the open and never trades back through it
+  OTD  a shallow probe against the eventual direction, then a drive
+  ORR  a real excursion one way, rejected, then a drive back through the open
+  OA   no directional conviction
+Entry at the close of the 30-minute window, stop at the window's adverse
+extreme, target fixed, forced exit at the session close.
+
+The source claims 76.4% wins at 1:1 on 85 trades. Measured, at 1R:
+
+  market      n      WR     PF     expR   CI lo
+  NQ        252   55.6%   1.22   +0.087  -0.027
+  ES        172   54.1%   1.10   +0.046  -0.098
+  RTY       327   50.8%   0.97   -0.012  -0.110
+  YM        261   49.4%   0.93   -0.033  -0.145
+  DAX        92   48.9%   0.92   -0.036  -0.232
+  SX5E      134   44.0%   0.59   -0.239  -0.398
+  FTSE      198   47.0%   0.83   -0.084  -0.217
+
+The best win rate on any market is 55.6%, twenty points below the claim, and not
+one market clears zero. Three further findings kill the classification outright.
+
+FIRST - ORR, the type the whole narrative is built on, barely exists. Under a
+mechanical definition it appears on 21 of 906 NQ sessions, 4 on DAX, 5 on SX5E.
+Whatever the source is identifying by eye, it is not a rule.
+
+SECOND - the type you are told to SKIP performs as well as the types you are
+told to trade. NQ at a 2R target:
+
+  what                    n      WR     PF     expR   CI lo   DD_R
+  source pick OTD+ORR   252   48.4%   1.28   +0.130  -0.017    7.5
+  OTD only              231   48.9%   1.36   +0.163  +0.007    6.6
+  OA only = SKIP list   369   43.4%   1.15   +0.085  -0.049   13.8
+  every session         896   45.1%   1.18   +0.092  +0.012   11.6
+
+THIRD - and this is decisive - deleting the classification entirely and trading
+EVERY session loses nothing. The null model reads +0.092R with a lower bound of
++0.012 on 896 trades; the source's pick reads +0.130R on 252 with a lower bound
+BELOW zero. The best classified cell, OTD alone, is +0.163R, and the gap over
+the null is 0.8 sigma - noise, out of a grid of 126 cells where roughly six
+false positives are expected by chance.
+
+Verdict: the open-type classification carries no measurable information. What
+the grid actually found is unrelated to Dalton, and it is the null model.
+
+===== 5. WHAT SURVIVED: THE DRIVE MODEL =====
+
+Thirty minutes after the open, take the direction the window moved, stop at the
+window's opposite extreme, target 2R, forced exit at the session close. No open
+type, no filter, every session.
+
+  NQ, 906 trades, futures cost:
+    WR 44.9%   PF 1.18   expectancy +0.0891R   95% CI [+0.0092, +0.1690]
+    R/month +1.835   max drawdown 12.1R   MAR 1.82
+    longs 484 at +0.063R, shorts 422 at +0.119R - shorts BETTER, so this is not
+      the Nasdaq uptrend in disguise
+    trim20 (delete the 20 best trades): +0.046R - survives
+    by year: 2023 -0.025, 2024 +0.156, 2025 +0.144, 2026 +0.079
+    IS +0.067 -> OOS +0.121 (improves out of sample)
+    random-side null with identical stops and exits: -0.1034R; real is 5.0 sigma
+      above it
+    quarterly block bootstrap: 95% CI [+0.023, +0.152], P(<=0) = 0.7%
+
+  target plateau            window plateau
+    1.0R  +0.036R             15 min  +0.087R
+    1.5R  +0.059R             30 min  +0.089R
+    2.0R  +0.089R             45 min  +0.097R
+    2.5R  +0.110R             60 min  +0.108R
+    3.0R  +0.119R             90 min  +0.054R
+
+  across markets (futures cost):
+    NQ  +0.089 (CI lo +0.009)   RTY +0.053 (-0.025)   ES  +0.008 (-0.077)
+    DAX -0.006                  YM  -0.051            FTSE -0.048   SX5E -0.145
+
+This has the highest monthly return of anything in the project - +1.835R against
++1.155R for the retest - on the largest sample, 906 trades against 326. It is
+also intraday momentum, a published and independently replicated effect rather
+than something found in this data, which is a point in its favour.
+
+--- AND IT IS UNCORRELATED WITH THE RETEST ---
+  monthly correlation on NQ:
+                retest  confluence  drive
+    retest       1.000       0.029  0.028
+    confluence   0.029       1.000  0.363
+    drive        0.028       0.363  1.000
+
+  portfolio                 R/mo    DD_R    MAR   R/mo at a 10R drawdown
+    retest alone          +1.161    8.29   1.68        +1.40
+    drive alone           +1.835   12.07   1.82        +1.52
+    retest+confluence     +1.194    5.06   2.83        +2.36
+    retest+drive          +1.498    4.53   3.96        +3.30
+    all three             +1.408    3.80   4.45        +3.71
+
+Three legs reach +3.71 R/mo at a 10R drawdown. The brief asked for 3-6R monthly
+at 10R, and the lower end of that range is now met on measured data - by adding
+a leg, exactly as the scaling work predicted, and NOT by tuning anything.
+
+===== WHAT NOT TO BELIEVE YET =====
+1. THE COST LEVEL DECIDES IT. Every number above is at futures cost. At prop
+   CFD cost the drive model falls to +0.062R with a lower bound of -0.017 - it
+   does NOT clear zero on a CFD account. This strategy needs exchange-level
+   costs, or a broker whose NQ spread is near a tick. That is the single most
+   important caveat in this file.
+2. IT IS ONE DAY OLD. The retest model took weeks of null models, holdouts and
+   two retracted claims before it was trusted. The drive model has had one
+   afternoon. The checks it passed are the right ones and it passed them
+   cleanly, but the retest model also looked clean before the FTMO cross-check
+   inverted min_break_or_frac.
+3. THE TARGET WAS CHOSEN AT THE EDGE. Expectancy rises monotonically from 1R to
+   3R with no interior peak, which means the target sits at the boundary of what
+   was searched rather than on a plateau. Monotone target curves usually mean
+   the edge lives in the tail of the distribution. trim20 survives, so the tail
+   is not the whole story, but it halves the edge.
+4. 2023 IS NEGATIVE (-0.025R). Three of four years positive, not four.
+5. THE THREE-LEG MAR OF 4.45 IS MEASURED ON THE DATA THAT SELECTED THE LEGS.
+   Treat +3.71 R/mo as the optimistic end of a range, not a forecast.
+
+===== NEXT, IN ORDER =====
+1. Measure the real NQ spread on the two prop accounts inside the 10:00 entry
+   window. Caveat 1 makes this the question that decides whether the drive model
+   is tradeable at all, and it costs nothing but a demo login.
+2. Forward-test the drive model in signal mode. It needs the same real-slippage
+   measurement the retest model still needs, and for the same reason.
+3. Only then size it. Two legs at 0.5% each already leave half the drawdown
+   budget unused; three legs at 10R historical drawdown is 0.6-0.7% per leg.
