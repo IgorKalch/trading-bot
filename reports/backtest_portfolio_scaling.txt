@@ -106,3 +106,57 @@ three-leg rows (MAR 2.84-2.89) are far inside the noise. The claim that
 survives is the coarse one - two legs beat one by a factor of 1.7 at matched
 drawdown, and it holds in-sample (2.74) and out-of-sample (6.92). The fine
 weighting choices do not survive and are not claimed.
+
+===== ADDENDUM: THE SAME MODEL ON MANY MARKETS DOES NOT DIVERSIFY =====
+
+The scaling law says MAR grows with the number of uncorrelated legs. Three
+models on NQ confirmed it. The obvious next question is whether the SAME model
+on several markets works the same way - it would be free, since the rule is
+already written.
+
+It does not, and the reason is worth more than the result.
+
+  the drive model, one rule, seven markets: monthly correlation
+          NQ    ES   RTY    YM   DAX  SX5E  FTSE
+  NQ    1.00  0.15  0.38  0.36  0.28 -0.00 -0.20
+  ES    0.15  1.00  0.25  0.33  0.10 -0.10 -0.30
+  RTY   0.38  0.25  1.00  0.28  0.26  0.21 -0.01
+  YM    0.36  0.33  0.28  1.00  0.41  0.00 -0.17
+  DAX   0.28  0.10  0.26  0.41  1.00  0.17 -0.03
+  SX5E -0.00 -0.10  0.21  0.00  0.17  1.00  0.21
+  FTSE -0.20 -0.30 -0.01 -0.17 -0.03  0.21  1.00
+
+  mean pairwise correlation +0.12
+
+That is LOWER than the +0.14 between the three models on NQ. By the
+correlation argument alone these baskets should diversify at least as well.
+
+  basket                        R/mo    DD_R    MAR   R/mo at 10R DD
+  NQ alone                    +1.835   12.07   1.82        +1.520
+  NQ+RTY                      +1.460   13.02   1.35        +1.121
+  NQ+RTY+ES                   +1.032   16.04   0.77        +0.643
+  all four US indices         +0.509   15.30   0.40        +0.333
+  all seven                   -0.309   16.22   -0.23       -0.190
+  NQ+DAX (different session)  +0.855   11.07   0.93        +0.772
+
+  three models on NQ alone    +1.408    3.80   4.45        +3.706
+
+Every basket is worse than NQ alone, and the whole seven-market version is
+NEGATIVE. The best of 56 pairs and triples is NQ+RTY at MAR 1.35, still well
+below the 1.82 of trading NQ by itself - and that is a cherry-picked upper
+bound, not a finding.
+
+THE LESSON: low correlation is necessary for diversification and nowhere near
+sufficient. Every leg must ALSO be individually positive. Diluting a +0.089R
+model with a -0.145R model does not buy a smoother curve; it buys a smaller
+numerator against a drawdown that barely falls, because the drawdown of a
+losing leg is not a random walk around zero - it trends down.
+
+This also reframes the cost/R constraint that has governed this whole project.
+The problem with ES, YM, DAX, EuroStoxx and FTSE is not that they are worse
+versions of NQ that a portfolio could average out. It is that they cannot be
+diversified INTO at all. Seven markets do not give seven legs; NQ gives one, and
+the other six are dead weight however little they correlate with it.
+
+So the route to more legs stays what it was: more models on NQ, or a market
+whose cost/R genuinely resembles NQ's - which among index futures there is not.
