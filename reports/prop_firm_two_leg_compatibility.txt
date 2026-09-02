@@ -1,0 +1,87 @@
+===== CAN THE TWO-LEG SYSTEM BE TRADED AT FUNDING PIPS AND FTMO? =====
+
+Two questions, and they have different answers: is it technically possible, and
+is it permitted. A third question settles both.
+
+--- 1. TECHNICALLY: YES ON BOTH, checked directly in the terminals ---
+mt5.account_info().margin_mode on the live accounts:
+
+  Funding Pips  login 20300017  FundingPips-SIM1   margin_mode = 2 = RETAIL_HEDGING
+  FTMO          login 1514461324  FTMO-Demo        margin_mode = 2 = RETAIL_HEDGING
+
+Both can hold a long and a short on the same instrument at once.
+
+A TRAP FOR OLDER FTMO ACCOUNTS. FTMO only began creating challenges as HEDGING
+accounts for purchases after 30 January 2026, 01:00. Anything bought before that
+is a NETTING account, where a long and a short on the same symbol cancel each
+other out - the second order reduces or closes the first instead of opening a
+new position. On a netting account the two legs cannot both exist in opposite
+directions at all, regardless of the rulebook. Check margin_mode on the real
+account, not on a demo.
+
+On hedging accounts margin is charged INDEPENDENTLY for the long and the short,
+so opposite positions consume roughly double the margin rather than netting to
+nothing.
+
+Other account limits, neither of them binding at our sizes:
+  Funding Pips  limit_orders 30    GER40 volume_limit 100 lots, volume_max 10
+  FTMO          limit_orders 200   GER40.cash volume_limit none, volume_max 1000
+
+--- 2. BY THE RULES: THEY DIFFER ---
+FTMO: same-account hedging is permitted, cross-account hedging is not. Holding
+long and short on the same instrument simultaneously is explicitly allowed on
+accounts created after 30 Jan 2026. Total allocation is capped at $400,000 per
+trader or strategy, and running the same strategy across several accounts can
+trigger suspension.
+
+Funding Pips: their published Trading Conduct page returns HTTP 403 to automated
+fetch, so the primary text could not be read here - this needs your own reading
+or a written answer from support. Every third-party summary found states that
+Funding Pips prohibits hedging, long-short arbitrage, reverse arbitrage and
+opposite-account trading outright, and at least one reads the prohibition as
+covering same-account long-and-short as well. The cross-account ban is
+unambiguous everywhere; the same-account case is where the sources hedge their
+language, which is exactly the point that would matter.
+
+--- 3. THE QUESTION THAT SETTLES IT: THE LEGS NEVER OPPOSE ---
+Measured across 905 sessions, every leg-1 trade classified against what leg 2
+was doing at that moment:
+
+  leg-1 trades                                349
+  day had no leg-2 setup at all                74   (21%)
+  no overlap in time                          248   (71%)
+  overlapped, SAME direction                   27    (8%)
+  overlapped, OPPOSITE direction                0    (0%)
+
+Zero. Not once in 905 sessions does the system hold a long and a short at the
+same time.
+
+The reason is structural, not luck. Leg 1 enters between 09:35 and 11:30 with a
+median hold of six minutes, and three quarters of its entries land in the first
+half hour - so it is usually flat before 10:30, when leg 2 opens. And when they
+do overlap, they agree: leg 1 needs price above its frozen SMA89 and beyond the
+opening range, which is the same condition that puts the IB close above its
+midpoint.
+
+Honest bound on that zero: it was zero out of 27 opportunities to disagree, so
+the rule of three puts the true disagreement rate under about 11% of overlaps -
+which is under 0.3% of all days. Rare, not impossible.
+
+--- CONCLUSION ---
+The two-leg system needs no hedging, so it is tradeable at both firms, and the
+Funding Pips hedging prohibition does not bite it.
+
+To remove the residual 0.3% entirely, add one rule at no measured cost:
+
+    If leg 2 is open and leg 1 signals the OPPOSITE direction, skip leg 1.
+
+Applied to the whole history this rule skips zero trades, so it costs nothing
+and makes the system provably hedge-free rather than merely observed to be.
+
+Still worth confirming in writing with Funding Pips, because it is their call
+and not mine: whether two SAME-direction positions on one instrument, opened by
+two different systems minutes apart, is read as one strategy or as two. That
+happens on 8% of leg-1 trades and is not hedging, but their trade-pattern
+analysis flags "identical entry times, sizes and pairs" and it is cheaper to ask
+than to find out after a payout request.
+=====================================================================
