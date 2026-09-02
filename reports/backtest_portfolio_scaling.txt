@@ -1,0 +1,108 @@
+===== WHERE THE REMAINING PROFIT IS: LEGS, NOT TUNING =====
+
+Per-trade expectancy is exhausted. Seven instruments, 21,672 filter
+combinations, every exit scheme, and this week the whole win-rate and
+stop-distance family - nothing moves +0.146R higher. What is NOT exhausted is
+the NUMBER of uncorrelated legs, and that axis has a known scaling law.
+
+--- STEP 1: RISK WEIGHTING BETWEEN THE TWO LEGS IS A DEAD END ---
+  w on leg1     R/mo    DD_R    MAR   IS MAR  OOS MAR
+         0%   +1.112    8.65   1.54     1.66     2.08
+        25%   +1.123    4.34   3.11     3.25     4.51
+        50%   +1.134    5.30   2.57     2.60     5.63
+        65%   +1.140    6.21   2.20     2.32     5.87   <- min-variance weight
+       100%   +1.155    8.32   1.67     1.58     6.78
+
+Return per month is FLAT across every weight (+1.112 to +1.155), because both
+legs happen to earn almost the same monthly R. Weighting therefore moves only
+the drawdown - and the drawdown optimum disagrees with itself: in-sample it sits
+at 25% on leg 1, out-of-sample it rises monotonically to 100%, and the
+theoretical min-variance weight (65%) is worse than an even split on both.
+Three answers, three directions. Maximum drawdown is a single-path statistic
+with enormous sampling error, and fitting a weight to it is fitting noise. Keep
+50/50, which needs no justification.
+
+--- STEP 2: A THIRD LEG, BUILT FROM THE ONE UNUSED VALIDATED RULE ---
+Leg 3 is the IB-width rule from the open-type work: on days whose first hour is
+at least 0.9% of price wide, take the first 5-minute close beyond the Initial
+Balance, stop at the IB mid, target 1R. Width as a PERCENTAGE, never in points -
+an absolute threshold on an index is a date filter in disguise.
+
+  leg                            n      WR     PF     expR     R/mo    DD_R    MAR
+  leg 1 retest M1 1R           326   56.1%   1.37   +0.156   +1.155    8.32   1.67
+  leg 2 IB confluence 1.5R     744   50.8%   1.19   +0.073   +1.228    9.21   1.60
+  leg 3 IB extension wide      243   52.3%   1.13   +0.047   +0.272    9.03   0.36
+
+Leg 3 is much weaker than the 83-trade version in the earlier note (+0.100R,
+PF 1.53) - a different stop, and 243 trades instead of 83. The stronger reading
+does not survive a cleaner definition, so the weak one stands.
+
+  monthly correlation:  corr(1,2) = +0.029   corr(1,3) = -0.184   corr(2,3) = +0.129
+
+Leg 3 is ANTICORRELATED with leg 1. That is the interesting property, not its
+expectancy: a leg does not have to be good to help, it has to be non-negative
+and uncorrelated. And the weight curve is dead flat -
+
+  weight on leg 3:     0%     10%     20%     30%     40%
+  MAR                2.82   2.84    2.86    2.88    2.91
+
+- so leg 3 is free, and worth almost nothing. It buys a smoother ride (drawdown
+5.07R -> 4.22R at a 20% weight) and no extra profit.
+
+--- STEP 3: THE ONLY HONEST COMPARISON - MATCHED DRAWDOWN ---
+Every row scaled so its maximum drawdown is exactly 10R, the budget in the
+brief. This is what "more profitable" has to mean; R/mo at unmatched risk
+compares nothing.
+
+  legs             R/mo   MAR  scale  R/mo@10R   +mo     IS    OOS
+  leg 1 only     +1.155  1.67   1.20    +1.388   61%   1.58   6.78
+  leg 2 only     +1.228  1.60   1.09    +1.334   59%   1.59   2.65
+  1+2 equal      +1.192  2.82   1.97    +2.350   68%   2.74   6.92
+  1+2+3 equal    +0.881  2.89   2.73    +2.409   64%   2.85   9.71
+  1+2+3 40/40/20 +1.005  2.86   2.37    +2.380   64%   2.80   8.51
+
+Two legs nearly DOUBLE the money at the same drawdown: +1.39 -> +2.35 R/mo. The
+third leg adds +0.06 R/mo, which is nothing. Positive months rise from 61% to
+68% and the worst month improves from -5.07R to -2.64R.
+
+--- STEP 4: WHAT THE TARGET ACTUALLY REQUIRES ---
+For n uncorrelated legs of equal quality, MAR grows as sqrt(n). Measured against
+that law: 2 legs read MAR 2.82 where sqrt(2) predicts 2.36 - better than the law,
+because correlation is +0.03 rather than 0. Three legs read 2.89 where sqrt(3)
+predicts 2.89 - exactly the law, and only because leg 3 is weak.
+
+  legs of leg-1 quality    MAR     R/mo at a 10R drawdown
+       1                  1.67          +1.39
+       2                  2.36          +1.96   (measured 2.82 -> +2.35)
+       3                  2.89          +2.40   (measured 2.89 -> +2.41)
+       5                  3.73          +3.10   <- the 3R/mo end of the brief
+      12                  5.77          +4.81
+      17                  6.87          +5.72   <- the 6R/mo end of the brief
+
+So: 3R/mo at a 10R drawdown needs about FIVE uncorrelated legs of this quality.
+We have two and a half. 6R/mo needs about SEVENTEEN, which is a research
+department, not a prop challenge. The 3-6R target was never a tuning problem; it
+is a headcount problem, and the top of that range is out of reach.
+
+--- THE WAY OUT, CONCRETELY ---
+1. STOP TUNING THESE TWO. Every axis inside a single leg is measured and closed.
+   Further search there produces false positives, not profit.
+2. SIZE TO THE DRAWDOWN BUDGET, NOT TO HABIT. The two legs at 0.5% each is a
+   5.1% historical drawdown against a 10% limit - half the budget unused. The
+   free doubling is in position size, not in a better signal. Not to the limit
+   though: 10R at 1% per R touches 10% exactly, and a historical maximum is a
+   floor on the future one. 0.6-0.7% per leg is the defensible ceiling.
+3. ADD LEG 3 AT A SMALL WEIGHT (20%) for the drawdown, and expect no profit
+   from it. Its value is the -0.18 correlation with leg 1.
+4. LEGS 4 AND 5 HAVE TO COME FROM A NEW COST STRUCTURE. Equity indices are
+   done - the reason only NQ works is cost/R (NQ 1.4%, everything else 3-24%).
+   The untested instrument class with comparably low cost/R is FX majors and
+   gold. Running the two EXISTING models there is the next real experiment, and
+   it is the only one left with a plausible path to +3R/mo.
+
+--- WHAT NOT TO BELIEVE FROM THIS FILE ---
+Six weightings and three leg combinations were tried; the differences among the
+three-leg rows (MAR 2.84-2.89) are far inside the noise. The claim that
+survives is the coarse one - two legs beat one by a factor of 1.7 at matched
+drawdown, and it holds in-sample (2.74) and out-of-sample (6.92). The fine
+weighting choices do not survive and are not claimed.
