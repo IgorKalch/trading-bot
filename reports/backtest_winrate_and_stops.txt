@@ -1,0 +1,86 @@
+===== BUYING AN 80% WIN RATE, AND WHAT IT COSTS =====
+
+Leg 1 (retest, NQ, 349 trades). Baseline: WR 57.6%, PF 1.31, +0.133R, DD 10.7R.
+
+--- THE ARITHMETIC FIRST ---
+At a fixed target, win rate is not earned, it is BOUGHT - with a nearer target
+or a wider stop. The break-even win rate for a target of k times risk is
+1/(1+k) before costs:
+
+  target 1.00R -> break even at 50.0%    we have 57.6%   margin +7.6pp
+  target 0.50R -> break even at 66.7%
+  target 0.25R -> break even at 80.0%
+
+So an 80% win rate at a 0.25R target is exactly break-even BEFORE costs. There
+is no version of this strategy where 80% is both reachable and profitable,
+because the edge is +0.133R and buying 80% costs more than that.
+
+--- A. LOWERING THE TARGET ---
+  target     n      WR    PF     expR   CI lo   DD_R   R/mo
+    0.25   349   79.9%  0.91   -0.019  -0.072   14.9  -0.15
+    0.40   349   72.5%  0.99   -0.004  -0.069   16.0  -0.03
+    0.50   349   69.6%  1.08   +0.026  -0.047   12.6   0.21
+    0.75   349   60.2%  1.08   +0.034  -0.056   16.4   0.27
+    1.00   349   57.6%  1.31   +0.133  +0.029   10.7   1.06
+
+The 80% target is hit almost exactly - 79.9% - and the strategy loses money
+there. Every reduced target has a WORSE drawdown as well, because the small
+wins no longer cover the unchanged losses. Only the 1R target clears zero.
+
+--- B. TIGHTENING THE STOP: STRICTLY BAD ---
+  stop x     n      WR    PF     expR   CI lo   DD_R  1R pts  trim20   IS/OOS
+    0.50   349   49.9%  0.92   -0.040  -0.145   31.3      18       -       -
+    0.75   349   51.0%  0.99   -0.005  -0.110   32.9      27       -       -
+    1.00   349   57.6%  1.31   +0.133  +0.029   10.7      36  +0.081  +0.123/+0.149
+    1.25   349   58.2%  1.35   +0.148  +0.045    8.8      45  +0.097  +0.146/+0.152
+    1.50   349   56.2%  1.25   +0.110  +0.006    9.5      55  +0.056  +0.142/+0.061
+    1.75   349   56.4%  1.28   +0.120  +0.017    9.4      64  +0.067  +0.159/+0.063
+    2.00   349   56.4%  1.28   +0.121  +0.018    7.2      73  +0.068  +0.152/+0.077
+    2.50   349   56.4%  1.30   +0.128  +0.025    8.1      91  +0.075  +0.122/+0.135
+
+Halving the stop takes the model from +0.133R to -0.040R and TRIPLES the
+drawdown to 31.3R. The pullback extreme is not an arbitrary choice - it is the
+level the market has to respect for the setup to mean anything, and a stop
+inside it gets hit by noise on the way to the same target.
+
+Widening is a plateau, not an improvement. Every multiplier from 1.0 to 2.5
+lands between +0.110R and +0.148R, and the whole spread is smaller than one
+standard error (0.053R). The nominal best, 1.25x, reads +0.148R with a +0.045
+lower bound, an 8.8R drawdown and in-sample +0.146 against out-of-sample +0.152
+- but its +0.015R gain over the baseline is well inside the noise, and it was
+picked from six candidates. Treat it as confirmation that the exact stop
+placement does NOT matter much between 1x and 2.5x, which is good news for
+trading it by hand, and not as a free upgrade.
+
+The one consistent signal is that drawdown falls as the stop widens: 10.7R at
+1x against 7.2-9.5R above it. Plausible - a wider stop breaks up losing runs -
+and worth knowing, but it costs proportionally more points per trade, so the
+percentage drawdown at fixed percentage risk is unchanged.
+
+--- C. PARTIAL EXITS ---
+  partial@  BE after     n     WR    PF     expR   CI lo   DD_R
+      0.30     False   349  57.6%  1.22   +0.066  -0.007    7.4
+      0.30      True   349  78.2%  1.12   +0.026  -0.037   12.5
+      0.50     False   349  57.6%  1.23   +0.080  -0.004    8.4
+      0.50      True   349  69.6%  1.16   +0.048  -0.029   11.1
+      0.75      True   349  60.2%  1.14   +0.058  -0.035   12.1
+
+Taking half off at 0.3R and moving the rest to breakeven produces a 78.2% win
+rate - the closest honest route to the 80% asked for - and cuts expectancy from
++0.133R to +0.026R, a loss of four fifths of the edge, while RAISING the
+drawdown from 10.7R to 12.5R. Every partial variant has a lower bound below
+zero. Scaling out without the breakeven move is less destructive but still
+halves the edge.
+
+--- CONCLUSION ---
+An 80% win rate is reachable three different ways and all three destroy the
+strategy. That is not a tuning failure; it is what a +0.133R edge permits. The
+win rate is an output, not a dial.
+
+The stop cannot be shortened. It is already at the only level with meaning, and
+inside it the model is worse than a coin flip after costs.
+
+What CAN be said: the stop placement is robust from 1x to 2.5x the pullback
+extreme, so being a few points off by hand costs nothing measurable. That is
+worth more to a manual trader than any of the win-rate constructions above.
+=====================================================
