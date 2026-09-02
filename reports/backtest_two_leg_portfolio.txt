@@ -1,0 +1,86 @@
+===== THE FOUR PRIORITY STEPS, AND A TWO-LEG PORTFOLIO =====
+
+--- STEP 1+2: A CHEAPER EXPRESSION OF THE CONFLUENCE VIEW ---
+Tried entering on the IB break instead of at 10:30, with stops at the IB
+midpoint, a recent swing, and a fraction of the IB, and targets at fixed RR and
+at the 100%/50% measured move. NQ, 905 sessions, futures-tick costs.
+
+  entry     stop   target     n     WR    PF    expR   CI lo   DD_R
+  open1030  ibfar  rr1.5    744  50.4%  1.17  +0.066  -0.002   12.6
+  break     ibfar  rr1.5    616  52.8%  1.26  +0.076  +0.013   13.7
+  break     ibfar  mm50     616  62.3%  1.17  +0.041  -0.005    6.2
+  break     swing  rr1.5    616  48.9%  1.16  +0.065  -0.014   14.2
+
+The break entry clears zero where the 10:30 entry does not, and it looks like
+the answer. It is not, and the null model says why:
+
+  10:30 entry:  real +0.066R  vs null -0.108R  ->  +4.7 sd
+  break entry:  real +0.076R  vs null +0.056R  ->  +0.7 sd
+
+A random side entered on ITS OWN break of the IB makes +0.056R. Waiting for the
+break means the break has already told you the direction, so the confluence
+filter has almost nothing left to add. The information is real at 10:30 and
+spent by 11:00.
+
+That is the answer to steps 1 and 2: there is no cheaper expression. The signal
+predicts the day's direction, not its path, so it needs a stop wide enough to
+survive the path - which is the whole Initial Balance.
+
+--- STEP 3: THE C-PERIOD RULE, AND IT HAS NO LOOKAHEAD ---
+Signal: the 10:55-11:00 close outside the IB. Variant A scans from 10:30 (as
+published), variant B only from 11:00 (tradable).
+
+  market  signal   fires        uncond.   variant A   variant B   lookahead
+  NQ      sig_up   159 (17.5%)   12.5%      28.3%       28.3%       0.0pp
+  NQ      sig_dn   145 (16.0%)   15.1%      44.1%       44.1%       0.0pp
+  DAX     sig_up   185 (19.7%)   25.9%      49.2%       49.2%       0.0pp
+  DAX     sig_dn   138 (14.7%)   24.7%      61.6%       61.6%       0.0pp
+
+The firing rate matches the published 17.8% / 15.0% on NQ almost exactly, and
+the lift of 2.27x to 2.92x brackets the published 2.59x / 2.62x. A and B are
+identical to the decimal, because a 100% extension needs a full IB range beyond
+the boundary and the signal bar closing just outside never reaches that far.
+So the published figure was clean - a rare thing in this material.
+
+--- STEP 4: THE TWO LEGS ARE UNCORRELATED, AND THAT IS THE RESULT ---
+Monthly correlation between the retest model and the confluence trade: +0.02.
+Daily: -0.04. Structural, not fitted - different hour (09:30-10:00 against
+10:30), different trigger, different instrument behaviour.
+
+                              R/month    DD      annual MAR   +months
+  retest alone                +1.155    8.32R      1.67         61%
+  confluence alone            +1.112    8.65R      1.54         61%
+  COMBINED, half risk each    +1.134    5.30R      2.57         64%
+
+  in-sample  (26 mo)          +1.148    5.30R      2.60         62%
+  out-of-sample (18 mo)       +1.113    2.37R      5.63         67%
+
+  by year: 2023 +0.872  2024 +1.522  2025 +1.008  2026 +1.133 R/month
+
+Same monthly return as either leg alone, at 64% of the drawdown. In-sample and
+out-of-sample agree to within 0.035R a month. Every year positive.
+
+The drawdown reduction is not luck: averaging two uncorrelated series of similar
+volatility should cut the standard deviation by root two, and 8.5 / 1.41 = 6.0
+against the 5.30 measured.
+
+--- IN MONEY ---
+  risk 1.0% per 1R of the combined series:  ~13.6%/yr,  5.3% max drawdown
+  risk 1.5%:                                ~20.4%/yr,  8.0% max drawdown
+  retest alone at 1.0%:                     ~13.9%/yr,  8.3% max drawdown
+
+The combination buys the same return at two thirds of the drawdown, or half
+again the return at the same drawdown. Against a 10% account limit that is the
+difference between an uncomfortable 1% and a comfortable 1.5%.
+
+--- WHAT IS STILL WRONG WITH IT ---
+1. The confluence leg's per-trade expectancy is +0.066R with a lower bound of
+   -0.002. It does not individually clear zero. What clears is its direction
+   signal, at 4.7 sd above a same-days random-side null, and the portfolio
+   benefit comes from the correlation rather than from that leg's size.
+2. One instrument. On DAX the same trade is +0.021R and the cheap expression is
+   worthless (-0.5 sd against its null).
+3. Still NDXUSD, a CFD proxy for NQ, and slippage is still assumed at one tick.
+4. This is the first combination in the project that helped, and the reason it
+   helped is exactly the reason the earlier ones did not: both legs have an edge.
+============================================================
