@@ -1,0 +1,81 @@
+===== THE IB CONFLUENCE FILTER: REPLICATED, THEN TRADED =====
+
+The research (reports/research_open_types.txt) killed every mechanical open-type
+classifier it found - kaiserfx, tradewrick, Marcn5_ - on determinism, baseline
+or evidence. What survived was not a classifier but a set of base rates with
+published samples, and one genuinely tradable conditioning rule.
+
+--- THE RULE (nqstats, 2,571 NQ sessions, 2016-2025) ---
+Both conditions are readable at 10:30:00 on closed bars. No hindsight.
+
+  above_mid = close of the 10:25-10:30 bar > (IB_high + IB_low) / 2
+  low_first = the IB low printed in an earlier 5-minute bar than the IB high
+  bullish_confluence = above_mid AND low_first        (bearish is the mirror)
+
+Claimed: bullish breaches the IB high 74.0% by noon and 84.0% by close, against
+a 47.0% / 62.9% baseline.
+
+--- IT REPLICATES ---
+Measured on Dukascopy, a different vendor, a different period, and a second
+instrument the source never tested:
+
+                          claimed    our NQ     our DAX
+  bullish, high by noon    +27.0pp   +29.4pp    +26.9pp
+  bullish, high by close   +21.1pp   +23.7pp    +19.0pp
+  bearish, low by noon     +28.1pp   +29.6pp    +29.0pp
+  bearish, low by close    +23.1pp   +23.6pp    +19.9pp
+
+  NQ absolute: baseline 48.1% / 62.4% -> confluence 77.4% / 86.2% (n=390)
+  by year on NQ: 79%, 89%, 89%, 88% - stable
+
+Four cells, two instruments, and all of them land within a few points of a
+statistic published on 2,571 sessions of someone else's data. Nothing in this
+project has replicated this cleanly before.
+
+Only 1 NQ session in 905 and 9 DAX in 932 had both IB extremes inside the same
+5-minute bar, so the 5-minute grid loses almost nothing against 1-minute.
+
+--- BUT A PROBABILITY IS NOT AN EDGE ---
+Traded mechanically: enter at the 10:30 open on confluence, stop at the far IB
+extreme, fixed RR target, pessimistic same-bar resolution, futures-tick costs.
+
+  market  stop   RR     n      WR    PF    expR    CI lo   DD_R
+  NQ      IB    1.5   744   50.4%  1.17  +0.066   -0.002   12.6
+  NQ      IB    1.0   744   52.8%  1.10  +0.038   -0.022   12.6
+  NQ      mid   2.0   744   38.4%  1.06  +0.039   -0.059   23.5
+  DAX     IB    1.5   743   44.5%  1.04  +0.021   -0.057   33.5
+  DAX     mid   any   743      -   <0.9  negative      -   >100
+
+NQ at 1.5R is +0.066R with its interval touching zero at -0.002. Against a null
+model that takes the SAME days and picks the side at random, which returns
+-0.108R, the real rule sits 4.7 standard deviations above. On DAX, +0.021R
+against a -0.231R null, 4.2 sd above.
+
+So the direction signal is real and large. The trade built on it is not, yet,
+because entering at 10:30 with the stop at the far side of the Initial Balance
+makes 1R the whole IB width - the most expensive possible way to express a
+directional view.
+
+--- WHERE IT SITS ---
+  incumbent NQ retest    349 trades   +0.146R   DD 10.3R   1.16R/mo   MAR 1.35
+  IB confluence, NQ      744 trades   +0.066R   DD 12.6R   1.12R/mo   MAR 1.06
+
+Nearly the same monthly R from twice the trades at half the edge. It does not
+beat the incumbent, but it is the first candidate that trades at a completely
+different time of day (10:30 against 09:30-10:00) off a signal verified against
+an independent published sample.
+
+--- WHAT TO TRY NEXT, IN ORDER ---
+1. A cheaper expression of the same view: enter on the IB-high break rather than
+   at 10:30, with the stop at a swing low or the IB midpoint, so 1R is a
+   fraction of the IB rather than all of it.
+2. Target the measured move (100% of IB range beyond the boundary), which the
+   research documents at 12.8% up / 15.9% down unconditionally on NQ, instead of
+   a fixed RR.
+3. The C-period rule: a 10:55-11:00 close outside the IB more than doubles the
+   100%-extension rate (NQ 33.2% up against 12.8%). Must be measured in the
+   tradable variant that scans only AFTER the signal bar closes - the published
+   figure may include the move that created the signal.
+4. Correlation with the retest model. Different hour, different trigger; if it
+   is low, the two together are worth more than either.
+=============================================================
