@@ -1,0 +1,75 @@
+===== SIX EXITS ON BOTH LEGS, AND THE PORTFOLIO CHOICE =====
+
+Three trailing variants (start/step 0/0.5, 1/1, 1/0.5) and three fixed targets
+(1R, 1.5R, 2R), on the retest leg and the confluence leg, NQ, futures-tick costs.
+
+--- RETEST LEG (349 trades) ---
+  exit            n     WR    PF    expR   CI lo  DD_R  trim20      IS     OOS
+  fixed 1.0R    349  57.6%  1.34  +0.146  +0.041  10.3  +0.094  +0.137  +0.158
+  fixed 1.5R    349  45.8%  1.25  +0.135  +0.004  11.9  +0.052  +0.151  +0.111
+  fixed 2.0R    349  39.3%  1.26  +0.157  +0.004  13.3  +0.045  +0.191  +0.108
+  trail 0/0.5   349  33.2%  0.98  -0.004  -0.083  14.6  -0.102  -0.031  +0.035
+  trail 1/1     349  29.5%  1.57  +0.276  +0.082  12.3  -0.053  +0.312  +0.223
+  trail 1/0.5   349  36.7%  1.49  +0.237  +0.062  11.8  -0.050  +0.292  +0.156
+
+--- CONFLUENCE LEG (744 trades) ---
+  exit            n     WR    PF    expR   CI lo  DD_R  trim20  vs null
+  fixed 1.0R    744  52.8%  1.10  +0.038  -0.022  12.6  +0.012   +5.5 sd
+  fixed 1.5R    744  50.4%  1.17  +0.066  -0.002  12.6  +0.026   +5.5 sd
+  fixed 2.0R    744  48.1%  1.11  +0.042  -0.030  12.6  -0.012   +4.1 sd
+  trail 0/0.5   744  20.6%  0.99  -0.002  -0.036  13.7  -0.036   +3.9 sd
+  trail 1/1     744  44.9%  1.12  +0.043  -0.032  13.4  -0.052   +2.9 sd
+  trail 1/0.5   744  46.5%  1.13  +0.048  -0.026  12.8  -0.044   +4.1 sd
+
+--- THREE THINGS THE GRID SAYS ---
+1. TRAILING FROM ZERO IS DESTRUCTIVE ON BOTH LEGS. trail 0/0.5 takes the retest
+   leg from +0.146R to -0.004R and the confluence leg from +0.066R to -0.002R.
+   Moving to breakeven the moment a trade is green removes the entire edge on
+   both, independently. On the confluence leg the win rate collapses to 20.6%.
+   This is the most common piece of retail risk advice there is.
+
+2. TRAILING'S ADVANTAGE IS ALWAYS OUTLIER-CARRIED. Every trailing variant on
+   both legs has a NEGATIVE trim20 - expectancy after deleting the twenty best
+   trades. Every fixed variant on both legs is positive. trail 1/1 reads +0.276R
+   on the retest leg, the best single number in this project, and -0.053R once
+   twenty trades of 349 are removed.
+
+3. ON DAX THE NULL MODEL EXPOSES THE TRAILING VARIANTS. Confluence trailing on
+   DAX looks better than fixed (+0.046R against +0.021R) but sits +0.3 sd above
+   a same-days random-side null, where the fixed exits sit +3.5 to +3.9 sd. The
+   trailing "edge" there is what a coin flip also earns.
+
+--- THE PORTFOLIO, HALF RISK EACH LEG ---
+  retest exit  confluence exit    R/mo   DD_R   MAR   +mo
+  trail 1/1    fixed 1.5R       +1.651   4.60  4.30   70%
+  fixed 2.0R   fixed 1.5R       +1.181   4.42  3.20   73%
+  fixed 1.0R   fixed 1.5R       +1.134   5.30  2.57   64%
+  trail 1/1    trail 1/0.5      +1.502   5.43  3.32   70%
+  fixed 1.0R   trail 1/0.5      +0.984   7.53  1.57   57%
+
+The headline winner is trail 1/1 + fixed 1.5R at MAR 4.30. It inherits the
+trim20 problem: its retest leg loses money without its best twenty trades, and
+its yearly means run +0.44 / +3.06 / +2.03 / +0.80 - 2024 carries it.
+
+The two fixed candidates, compared properly:
+
+                              R/mo  DD_R   MAR  +mo      IS     OOS   by year
+  retest 2.0R + conf 1.5R   +1.181  4.42  3.20  73%  +1.365  +0.914  .35/2.34/1.30/.50
+  retest 1.0R + conf 1.5R   +1.134  5.30  2.57  64%  +1.148  +1.113  .87/1.52/1.01/1.13
+
+The 2.0R version has the better MAR and the worse everything else: its
+out-of-sample mean is a third below its in-sample, and its years swing by a
+factor of seven. The 1.0R version agrees with itself out of sample to within
+0.035R a month and its worst year is 57% of its best.
+
+--- RECOMMENDATION: retest fixed 1.0R + confluence fixed 1.5R ---
+  +1.134R/month, 5.30R maximum drawdown, annual MAR 2.57, 64% positive months
+  in-sample +1.148 against out-of-sample +1.113
+  both legs have the highest trim20 in their own family (+0.094 and +0.026)
+
+  at 1.0% risk per 1R:  +14.2%/yr, 5.2% max drawdown
+  at 1.5% risk per 1R:  +21.7%/yr, 7.8% max drawdown
+
+Not the biggest number in the table. The one whose number is least likely to
+have been an accident.
+============================================================
