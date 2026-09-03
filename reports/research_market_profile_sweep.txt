@@ -1,0 +1,104 @@
+# RESEARCH BRIEF — after twelve search angles, zero survivors from the tradition, one survivor from our own code
+
+Everything in the candidate pipeline died. The five items below are ranked by expected value, not by novelty. Item 1 was **measured today**, not proposed: it is a parameter of a live model that this project never swept. Items 2–4 are honest long shots with priors stated. Item 5 is infrastructure that stops the 21st failed filter from being written.
+
+---
+
+## A. TEST FIRST
+
+### 1. DRIVE's target width — the one parameter never swept. (EXIT ARCHITECTURE on the drive model, no trades deleted)
+**Prior: 0.60** that a 2.5–3.0R target replaces 2.0R as the live default; **0.35** that the drawdown cut survives the next 12 months out of sample.
+
+`tools/validate_drive.py` has printed a target plateau since commit `a7f706f` and nobody read the drawdown column. Rerun output (NQ, 906 sessions, futures cost 0.50, entry/stop/hold identical, only `rr` changed):
+
+```
+ rr      n     WR     expR     CI lo     DD    R/mo    MAR   trim20      IS      OOS   by year
+ 1.0R  906  52.6%  +0.0357  -0.0256   13.1  +0.735   0.67  +0.0140  +0.0395  +0.0303  23:+.000 24:+.066 25:+.021 26:+.065
+ 2.0R  906  44.9%  +0.0891  +0.0092   12.1  +1.835   1.82  +0.0460  +0.0672  +0.1206  23:-.025 24:+.156 25:+.144 26:+.079   <- LIVE
+ 2.5R  906  43.6%  +0.1099  +0.0236    7.2  +2.264   3.78  +0.0561  +0.1123  +0.1066  23:+.033 24:+.189 25:+.126 26:+.083
+ 3.0R  906  42.8%  +0.1194  +0.0283    6.8  +2.459   4.35  +0.0545  +0.1410  +0.0885  23:+.075 24:+.203 25:+.115 26:+.066
+ 3.5R  906  41.5%  +0.1287  +0.0334    7.3  +2.651   4.33  +0.0527  +0.1546  +0.0916
+ 4.0R  906  41.5%  +0.1141  +0.0168   11.6  +2.349   2.42  +0.0265  +0.1431  +0.0725
+ no cap 906 40.4%  +0.1122  +0.0022   19.0  +2.310   1.46  -0.0451  +0.1593  +0.0446   <- control, WORSE
+```
+At prop-CFD cost 2.13 the live 2.0R has a **negative** lower bound (+0.0625, CI lo −0.0174) while 3.0R clears zero (+0.0928, CI lo +0.0018, DD 7.8R, MAR 2.95). Paired quarterly block bootstrap, 3000 resamples, same days both arms: ΔDD median **−4.1R, 95% [−15.4, +1.0], P(3.0R worse) = 5.4%**; 3.0R expectancy CI [+0.0713, +0.1643], P(≤0) = 0.0%.
+
+**Rule to code:** `model_drive(rr=3.0)`. That is the whole change. Scan `rr ∈ {2.0, 2.25 … 4.0}` at both cost levels; carry `n_bars ∈ {6, 9, 12}` only as a robustness axis, **not** as a second tuning knob (the n_bars gain is already known to be 2023-loaded, t=0.91).
+
+**Confirm/kill, pre-registered:** (a) ΔDD bootstrap P(worse) < 10% — **passes at 5.4%**; (b) trim20 must rise, not fall — passes (+0.046 → +0.055) and this is what separates a wide target from the trailing exits that died in `reports/backtest_exit_grid_both_legs.txt`; (c) the plateau must be flat over ≥3 adjacent cells — passes (2.5/3.0/3.5 = DD 7.2/6.8/7.3); (d) the `no cap` control must be worse — passes decisively (DD 19.0R, trim20 −0.045), which also kills the uncap arm the critic flagged (+0.1031R, DD 10.8R, MAR 2.36 — dominated by flat 3.0R on every column); (e) direction must replicate on the only other market where the model is positive — RTY: DD 19.0 → 16.2R, exp +0.0527 → +0.0682. It does not replicate on ES/YM/DAX/SX5E/FTSE, all of which are negative-expectancy at every target.
+
+**The honest hazard, stated first because you will find it anyway:** the *expectancy* gain is in-sample-loaded (IS +0.0672 → +0.1410, OOS +0.1206 → **+0.0885**) and per-trade it is not significant (paired t = 1.57, changed on 22% of trades). What replicates in both halves is the **drawdown** (IS 12.1 → 4.1R, OOS 9.1 → 6.8R). Sell it as a drawdown result, never as a return result. Second hazard: 39.0% of trades now resolve at the 15:55 close mark instead of 30.9%, so the equity curve leans harder on the close print and on CFD-vs-futures close differences.
+
+### 2. Volatility-target the DRIVE R-stream instead of rejecting trades. (SIZING overlay on drive; deletes zero trades)
+**Prior: 0.30** for a ≥20% drawdown cut; **0.10** that it also raises expectancy.
+
+Twenty filters failed because DRIVE's losers are not identifiable at 10:00. Position size does not require identifying them. Multiplier on closed data only: `m_t = clip(v_target / sd20(R_{t-1..t-20}), 0.5, 1.5)`, `v_target` = the full-sample-median trailing sd frozen at the first 20 sessions; report `sum(m·R)/sum(m)` so expectancy stays comparable. Scan window ∈ {10, 20, 40}, clip ∈ {(0.5,1.5), (0.33,2.0)}.
+**20-minute pre-screen that decides whether to bother:** autocorrelation of |R| at lags 1–5 and the ratio of realised monthly variance to the iid prediction. The retest leg's block bootstrap already found monthly variance *at* the independence prediction (`reports/backtest_block_bootstrap.txt`), which is evidence against clustering. If |R| autocorrelation < 0.05 at every lag, stop — vol targeting cannot work on an iid variance series and the rest of the test is theatre.
+**Kill:** must beat both a constant-m control and a shuffled-m control on DD, with expectancy within one SE.
+
+### 3. Information discreteness (frog-in-the-pan) on DRIVE's own 30-minute window. (FILTER on drive)
+**Prior: 0.12.** This is the only filter left with genuine external evidence: Da, Gurun & Warachka, *"Frog in the Pan: Continuous Information and Momentum"*, **Rev. Financial Studies 27(7), 2014** — continuous information produces stronger, more persistent continuation than discrete information; large cross-sectional sample, published, replicated. Everything else in the filter family had a vendor blog behind it.
+**Rule:** on the 30 M1 bars of DRIVE's own window, `ID = sign(C−O) × (share_neg − share_pos)` of the 30 signed M1 returns. Continuous = many small same-sign bars; discrete = few large ones. Reject the most-discrete tercile, ranked against a **trailing 60-session** distribution (never full-sample). Scan tercile vs quartile cut, and M1 vs M5 bars.
+**Kill:** the standard gate — (%losses removed) − (%trades removed) ≥ 8pp; rejected cohort expectancy must be **negative**; quintile dose-response |rho| ≥ 0.7. **And one pre-check that will probably end it:** report corr(ID, `displacement_atr`) and corr(ID, `window_width_atr`). Both of those are closed (rho +0.50 / −0.10, `reports/backtest_profile_filters.txt`). If |corr| > 0.7, ID is a relabelling of a closed axis and you stop there.
+
+### 4. One-timeframing as a hold condition. (EXIT architecture on drive)
+**Prior: 0.10, and item 1 predicts it fails.** Included only because it is Dalton's single zero-parameter mechanical definition and closing it closes the tradition's last untested claim. Rule: after entry, while each successive 30-minute bracket makes a higher low (long) / lower high (short), hold to the close; on the first bracket that breaks it, exit at that bracket's close. Zero parameters; the only variant worth adding is a 5-minute bracket.
+**Why it will fail:** every give-back exit measured in this project is outlier-carried (trim20 negative on 22 of 22 trailing variants across two legs) and item 1's curve says DRIVE wants *more* room, not tighter management — 1.0R, 1.5R and every hold shorter than the close all measure worse, monotonically. **Kill:** trim20 must stay positive and DD must beat the flat-3.0R benchmark, not the 2.0R one.
+
+### 5. Fix the measurement harness before writing filter #21. (INFRASTRUCTURE)
+`tools/filters.py` is a boolean mask over a fixed `r` vector, so it **cannot express any rule that mutates outcomes** — which is why twenty proposals were shaped as entry gates and the exit surface sat unswept for four months. Three half-day jobs, in order: (a) a `walk`-level harness that accepts an outcome-mutating rule and reports DD/trim20/paired-bootstrap against a named benchmark, with the R denominator printed in the header (the units artefact that killed `c-period-close`); (b) a random-rejection null baked into every filter report (a filter must beat the 95th percentile of removing the same % of sessions at random — three kills needed it and it was computed ad hoc each time); (c) skrecok's **Hartigan dip test** as a standing pre-screen (p = 0.99 on 2,669 DAX sessions) — one afternoon, and it falsifies any proposed discrete session taxonomy before a backtest is written.
+
+---
+
+## B. THE ONE MOST LIKELY TO CUT DRAWDOWN
+
+**Item 1, the 3.0R target.** It is the only candidate in this entire investigation whose drawdown improvement is (i) already measured, (ii) large — 12.1R → 6.8R, a 44% cut on the model's stated weakness, (iii) accompanied by *rising* expectancy rather than the usual trade-off, (iv) supported by a plateau across three adjacent cells rather than one lucky threshold, (v) confirmed by a paired quarterly block bootstrap on the same days (P(worse) = 5.4%), (vi) better in **both** halves of the sample, (vii) still positive at the prop-CFD cost where the live 2.0R version's lower bound is negative, and (viii) it turns 2023 — DRIVE's only losing year, the single documented flaw — from −0.025R to +0.075R. Its control arm, removing the cap entirely, is worse on every column, which is exactly what you want to see: the effect is an interior plateau, not "let winners run", so it is not the outlier-carried illusion that killed all 22 trailing variants (trim20 *rises*, +0.046 → +0.055).
+
+**The trade-off in trade count is zero.** Not one of the 906 trades is deleted; every session still trades, the entry and stop are untouched, and the prop-firm daily-loss profile is unchanged. The cost is paid in three other currencies: win rate 44.9% → 42.8%, target-hit rate 21.5% → 11.6% (so 39% of trades now book at the 15:55 close print rather than at a limit, raising execution and close-print sensitivity), and per-trade expectancy significance — the paired gain is t = 1.57 and is in-sample-loaded, with out-of-sample expectancy actually *falling* (+0.1206 → +0.0885). Adopt it for the drawdown, budget nothing for the return.
+
+---
+
+## C. DO NOT BOTHER
+
+**Closed on our own data — do not re-open, in any denominator:**
+- The **entire Market Profile filter family**: 39 pre-specified cells across three models, zero that both separate winners from losers and beat unfiltered MAR (`reports/backtest_profile_filters.txt`). Includes value-area location, POC, naked/virgin POC, path-blocked-by-POC (the claim is *inverted*: blocked +0.147R vs clear +0.071R, and still untradeable), prior value-area traverse (80% rule measures 51.3%, n=2,178), 3-day balance (open inside it: 11 sessions in four years), single prints (the spec's own SANDWICH=3 is structurally unsatisfiable — 1 zone in 895 sessions).
+- **Dalton open types**: no information; best win rate 55.6% on any of 7 markets; deleting the classification beats the source's own pick.
+- **Volatility conditioning, five separate attempts**: 15 dose-responses, rho scattered −0.6..+0.6, no gradient; plus rv30 terciles, rvol30 terciles, IB-width-in-ATR, friction floor (corr(q, gross R) = −0.007), OR-width vs rolling median. All show the same signature: %trades removed ≈ %losses removed, rejected cohort profitable.
+- **Shorter holds on DRIVE**: monotone against, nine cut-offs, 10:30 → close, +0.0126 → +0.0891R; trim20 negative for every exit before 11:30.
+- **Trailing / give-back exits on the retest and confluence legs**: 22 variants, every trailing trim20 negative; trailing from zero destroys both legs independently.
+- **The 20 filter kills are ONE finding, not twenty**: DRIVE's losers are not identifiable at 10:00 from any session statistic — profile, volatility, volume, width or location. Stop testing members of that class.
+
+**What the sceptics got right, and should now be standing rules:**
+1. The %trades ≈ %losses signature is structural, not twenty coincidences. Demand the 8pp separation gate *and* a random-rejection null before spending a run.
+2. Always print the R denominator. Two kills turned on an unstated denominator (`c-period-close`'s DD "improvement" was half a units artefact; the VPOC leg's prose target was a median 1.79× its code target).
+3. Price the scan. A 120-cell scan's best cell must beat +0.13..+0.22R to mean anything; a "best cell" of +0.060R from that many cells is noise with a decimal point.
+4. A gate that cannot fail is not a gate (the S8 tautology: "rejected subset's expectancy is negative" was true by construction on 119 of 119 trades).
+5. Provenance matters: the **76.4%** open-type win rate has **no traceable source** anywhere in twelve angles. Stop stating our largest closed finding against it — state it against the measured baselines instead (clean-day 49.3% NQ / 43.1% DAX).
+
+**Unsearched modalities that are not worth buying now** (Wayback/CDX on the four dead domains, German/Czech/Russian practitioner literature, CME's *Market Profile Reference Guide* and DataMine, AgEcon/ProQuest, edgeful and Quantpedia subscriptions, Sierra Chart's forum). The reason is not that they are empty — it is that 39 mechanical cells on 900 sessions × 7 markets already closed the family on its own preferred ground. A better-written or better-translated statement of the same claims cannot move a measurement that returned zero separation. Spend the ~$70 and the search hours on breadth of *data* (section D) instead.
+
+---
+
+## D. WHAT WE STILL CANNOT TEST
+
+1. **True volume at price.** Everything profile-shaped here is TPO or tick-volume-weighted. Original CBOT claims were built on the Liquidity Data Bank with CTI-split volume. *Fix:* CME DataMine MBO or Databento for NQ/ES. *But:* the TPO version already returned zero separation in 39 cells, so this buys a better proxy for a dead family — lowest priority.
+2. **Intrabar path ordering.** `_walk` resolves same-bar stop-and-target against the trade. That is conservative but it is a real bias, and it bites harder at wide targets (stop rate rises 47.6% → 49.4% purely from that convention). *Fix:* Dukascopy **tick** data for the same symbols — available today, no purchase, and it is the cheapest remaining data upgrade in the project.
+3. **Horizon and breadth — the only untested dimension that changes the binding constraint.** cost/R is what kills everything here; multi-day holds with 2–3×daily-ATR stops put cost/R at 0.05–0.5% instead of 1.4–24%. We cannot test it: 7 correlated equity indices over 3.7 years is one bet, not a portfolio. *Fix:* Dukascopy also serves FX majors, metals, energy and bond CFDs at M1 — pulling 15–25 markets and building daily bars is a two-day job and opens the class with century-scale out-of-sample evidence (Moskowitz–Ooi–Pedersen; Hurst–Ooi–Pedersen). This is the highest-value data acquisition available.
+4. **Real prop-CFD fills.** All CFD numbers use a measured spread × 1.5 and assume one-tick slippage. Item 1's CFD-cost conclusion (3.0R clears zero, 2.0R does not) hangs on that. *Fix:* a live journal, or a demo account logging requested-vs-filled at 10:00 NY.
+5. **European sessions properly.** Three of seven markets are European and every model, ATR and session definition is US-RTH-shaped; `_daily_atr` is a 24-hour Globex range over a calendar index that contains Sundays. Nothing on DAX/SX5E/FTSE should be trusted until that is rebuilt.
+
+---
+
+## E. THE HONEST BOTTOM LINE
+
+**No.** There is nothing left in the Market Profile tradition that a mechanical tester should expect to pay off, and the evidence now says it twice as loudly as the open-type measurement did.
+
+Thirty-nine pre-specified cells, three models with independent entry logic, 900 sessions × 7 markets, and not one filter both separates winners from losers and beats the unfiltered model. Every specific claim the tradition offers, once made mechanical, measures null, backwards, or vanishingly rare: open types carry no information; the 80% rule is 51.3%; the path "blocked" by yesterday's POC is *twice as good* as a clear path; the two-hour timing rule is monotonically wrong; balance-at-the-open occurs on 1% of sessions; single prints as specified occur once in 895 sessions. The pattern across all twelve angles is the same — the vocabulary describes conditions far rarer and far weaker than the confident prose implies, which is exactly how a discretionary method produces an 85-trade sample and a 76.4% win rate whose origin nobody can find.
+
+The useful conclusion is not about Dalton, it is about where the remaining money was hiding. Twelve angles of external search produced twenty candidates and twenty kills. Ninety minutes of sweeping a parameter of **our own model that no report had ever swept** produced a 44% drawdown cut, a rising trim20, and DRIVE's losing year turned positive. Two of the three legs had their exit surface swept properly in 2026; DRIVE — the newest and largest leg — never did, because the harness could only express entry filters and every proposal was shaped to fit the harness.
+
+So: implement item 1, fix the harness (item 5), run items 2–4 to close them, and then stop reading practitioners. The next real gain is not a better filter on 7 correlated indices at 1.4–24% cost/R. It is breadth and horizon, where cost stops being the term that decides everything.
+
+---
+**Files:** `C:\Users\i.kalchenko\source\repos\IK\trading-bot\tools\validate_drive.py` (target plateau, lines 109–115 — the table nobody read), `…\tools\markets.py` (`model_drive`, `_walk`), `…\tools\driveexit.py` (hold-time curve), `…\tools\filters.py` (the boolean-mask limitation), `…\reports\backtest_profile_filters.txt` (39 cells + hold curve), `…\reports\backtest_exit_grid_both_legs.txt` and `…\reports\backtest_nq_exits.txt` (trailing trim20 evidence), `…\reports\backtest_block_bootstrap.txt`.
+**Rerunnable scripts for section A item 1** (scratchpad): `C:\Users\I3A08~1.KAL\AppData\Local\Temp\claude\c--Users-i-kalchenko-source-repos-IK-trading-bot\0469be3f-2d1c-45ed-86c3-16897f67800c\scratchpad\targetsweep.py` (9-cell target sweep, both costs), `…\scratchpad\xmkt.py` (7 markets × 4 targets, IS/OOS halves, paired t), `…\scratchpad\ddboot.py` (paired quarterly block bootstrap of ΔDD, resolution mix).

@@ -1,0 +1,90 @@
+# BRIEF — `TO_IB/iborrotd.mp4`, second reading
+
+**Verdict up front: No. The first reading got everything mechanically testable. This pass generated 16 candidate rejection rules; 12 were killed on measurement or sourcing, 3 are unspecifiable from the source, and the 1 that survived adversarial review was then measured empty — and half of it was already in `config/config.nq.yaml` before anyone watched the video.** Detail below, because the *reasons* are worth more than the verdict.
+
+---
+
+## A. WHAT THE VIDEO ACTUALLY SAYS ABOUT REJECTING TRADES
+
+The recording is overwhelmingly a catalogue of refusals — across the two bar-replay walkthroughs he declines roughly three setups for every one he takes, and says so explicitly at [29:22] *"я буду ограничивать количество позиций, но при этом увеличивать качество"*. **Exactly one of those refusals carries a stated number.** Ranked by mechanicality:
+
+**1. Entry cutoff at open + 2 hours. The only fully mechanical rejection rule in 76 minutes.**
+[07:09] *"то есть течение первых двух часов мы получаем в большинстве случаев основной мув"* → [07:25] *"после двух часов я скипаю всю последующую работу и внутри сессии уже не открываю и не добираю никаких позиций"* (verified verbatim, transcript lines 97–108). Relative duration, anchored to the open, no wall clock, no absolute points — exactly the form this project demands. Two caveats that matter: it is scoped to Xetra (*"работе с Ксетрой, которую я сейчас использую"*), and at [56:11] he gives a different, doubly-hedged number (*"до часу, если я не ошибаюсь"*) which on the UTC+3/Xetra-hours chart in frames f_0225/f_0252 resolves to open+180 in summer. **Status: `pos1_cutoff` is already `hm(op)+120` (`tools/markets.py:312`, `config/config.nq.yaml:29` = "11:30"). The only new content is the second entry — 9 of 349 NQ trades, measured at +0.0011R and DD 10.30R → 10.22R, non-monotone across 60/90/120/150/180 with the peak at 90.** Dead.
+
+**2. Scoring convention (not a filter, but load-bearing).** [35:00] *"до этого дня не закрывалась даже в профите — я записывал ее как убыточную… по закрытию ксетры"*. Any position unresolved at the cash close was booked a **full loss even when in open profit**. His bookkeeping is *stricter* than our `flat_time` exit at actual R, which deepens rather than explains the 76.4%/55.6% gap. Also implies one trade per session, flat at close, no overnight.
+
+**3. Open inside the prior day's *balance* → skip.** Stated six times by both presenters: [06:57] *"такие ситуации пропускались"*, [13:00] *"что открывалось в балансе, пропускалось"*, [50:40], [68:01]. **Already measured — it is cells 2–3 of the thirty** (`tools/filters.py:86-92`, `open_vs_value != "inside"`): keeps 67% of trades and 66–67% of losses, drives baseline DD 11.6R → 19.1R (MAR 1.93 → 0.89), and on the live retest model the sign inverts — the sessions he says to skip score **better** (+0.1642R / 57.5% WR vs +0.1520R). Additionally, the sourcing audit found the rule is truncated in every extraction: [08:31]–[08:49] says in-balance opens **were counted** as ORR when followed by an excursion beyond the whole profile, and [68:07] re-admits them on an IB extension.
+
+**4. Wait for the *second* break beyond a swept prior nPOC/VAH/VAL.** The one rule that exists in *writing* (slide 04/06, frame 64): *"Если есть ORR/OTD с перехаем/лоем какой то области, то ждем выхода уже за ключевой саппорт/резист (nPOC/VAH/VAL) для входа"*, spoken at [16:51]. Two problems: the sentence admits two incompatible parses (one object, or a swept area *plus* a further key level — *"уже за"*), and `strategy.retest` **already requires break → pullback → second break**, so the rule keeps 94% of trades and 98% of the losses. His actual quoted mechanic is in the model.
+
+**5–9, all eyeball, none with a number:**
+- Skip large-gap days — [16:16] *"я пропускал дни с большими гэпами"*, reason given ([16:41] chop, or a flush with no entry). **No threshold.**
+- Skip aggressive / Open Drive opens — [13:02], [60:48], [61:46]. Measured: removes losses at exactly the rate it removes trades (39.1%/39.3%), raises NQ DD 17.0R → 19.0R, inverts DAX (+0.0024R → −0.1255R).
+- No target → skip — [68:31] *"таргета нет, в большинстве случаев позиция будет пропускаться"*. This is an **existence** test, not a ratio; on an index with 5–9 prior-session levels in range it fires on ~0 sessions. Every ratio-threshold version tested was the extractor's number, not his.
+- Anomalously wide IB → skip — [12:01]…[12:09] *"инишенал баланс вот был прям аномально большим"*, immediately after he denies having a threshold at all: [11:57] *"но я не ограничивал себя каким-то определенным диапазоном"* (verified).
+- Never trade the first touch of a zone — [30:53]. Requires a band half-width that exists nowhere in the material; frames 124/155 show single lines, not zones.
+
+---
+
+## B. THE MECHANICAL GAP — 55.6% vs 76.4%
+
+Ranked by how much each can carry. The first two probably account for all of it.
+
+**1. The 85-trade sample was hand-curated and the stop was placed with the completed chart visible. Say it plainly — his own slide admits it.** Slide 03/06 (frame 47) attaches *"гибкая постановка SL (в зависимости от контекста)"* to the approach in writing. He describes moving the stop from the far IB boundary in to the IB 0.5 on exactly the wide-IB days [12:27]–[12:43]. Provenance: [75:17] — the whole thing was built manually in about six evenings of 1.5–2 hours, i.e. **~2 minutes per recorded trade** across ~500 instrument-sessions, judged trade by trade in bar replay. The smoking gun is internal: his **NQ column is 70.8 / 37.5 / 22.2%** at 1:1 / 1:1.5 / 1:2, against driftless breakevens of 50 / 40 / 33.3%. A real directional edge cannot beat the random-walk floor by 20.8 points at 1R and then fall *below* it at both higher multiples. That signature is precisely what discretionary stop-distance selection produces: it inflates the 1R hit rate and destroys everything beyond it. Max losing streak of 2 in 72 trades at a ~29% loss rate is the same story.
+
+**2. Scope. We compared to the wrong number.** 76.4% is **fDAX only, calendar 2024 only, Xetra hours only, 85 hand-recorded Open-Type trades**. The NQ figure is **70.8% on 72 trades** (slide 04/06). There is a *third*, larger, entirely untested claim beside it: **110 fDAX IB-extension trades at 72% / 50.4% / 31.5%**, with the flexible-SL note attached. On n=72, one standard error is ~5.4 points, so the honest comparison is 55.6% vs 70.8% ± 11, on one year vs three and a half, one market vs seven. Still a gap, but not the gap we cited. His own slide also fails arithmetic: 110 + 85 = 195, slide says 196; the extension percentages do not resolve to integer wins on n=110.
+
+**3. Stop location, and therefore R itself.** Default stop is the **opposite Initial Balance boundary** [12:23], so R ≈ one IB width. On-screen position tools: 0.55% of price (frames 102/103, NQ, entry 14144.50 / stop 14066.75 / target 14222.25, exact 1:1), 0.90% and 1.28% (frames 116, 141), 0.545% (frame 245, FDAX). Our models size risk from a scaled window extreme. A materially larger R raises any 1:1 hit rate mechanically **and** improves cost/R — the binding constraint on this project. This is the one difference that changes the object being measured rather than sub-selecting sessions.
+
+**4. Entry trigger and its timing.** Not a fixed bar: classify on the first 5-minute candle as a *direction filter only* [62:24]–[63:01], then require a sweep of a prior high/low, a fractal, a pullback, and a **5-minute BOS body close** [06:05], [13:10]–[13:22], with left-side levels needing the *second* push. He explicitly excludes inversion-style entries. Our mechanical classifier fires on every qualifying session at a fixed offset.
+
+**5. Session anchor and IB length.** fDAX from the Xetra cash open, NQ from RTH (slide 02/06, frame 25). **The IB length is never stated aloud in 76 minutes** — eleven mentions of "инишенал баланс", not one duration; read off the shaded indicator box as 60 minutes / twelve 5m bars by three independent agents.
+
+**6. Nothing demonstrated is in the counted sample.** The NQ walkthrough runs on Feb–Mar 2022, the fDAX walkthrough on May 2023; both backtests are 2024. At [51:14] he says outright of an on-screen example: *"такого бактеста не будет — я выделял конкретный setup"*.
+
+---
+
+## C. TEST FIRST — three items, and none of them cuts drawdown
+
+I am not offering four. Three is what the material supports, and my prior is under 20% on all of them.
+
+**1. Stop = opposite IB boundary, target 1R — a re-specification of R, not a filter.** Rule: entry as the host model already defines it; stop at the opposite IB edge (variant: IB 0.5); target fixed 1.0R; one trade per session; flat at cash close. Grid: `stop_ref ∈ {opposite_IB_edge, IB_mid}` × `ib_minutes ∈ {30, 60}`, 4 cells, NQ + DAX only. **Not a filter — it changes the traded object**, so it must be run as its own model, not layered on `retest`. Confirms if expectancy rises *and* cost/R falls (currently NQ 1.4% of R, others 3–24%); kills if the 1:1 hit-rate rise is exactly offset by the wider R, which is the expected outcome. **Prior: 20%.** This is the only genuinely untested *mechanical* difference; it is also the mechanism by which his discretionary version inflated its own number, so a mechanical version has no reason to inherit the benefit.
+
+**2. The IB-extension leg as *he* configured it — 110 trades, 72% at 1:1, never tested here.** `tools/markets.py:213 model_extension` exists but has never been run with his geometry (stop at opposite IB edge, fixed 1R, first close beyond the IB only, flat at close, unresolved = loss). Same 4-cell grid as item 1, no additional free parameters. Confirms if mean R clears zero with the lower bootstrap bound above zero on the frozen CUT = 2025-03 split; kills otherwise. **Prior: 15%** — and note the slide attaches the flexible-SL admission to *this* leg specifically, which is the reason the prior is not higher.
+
+**3. `pos2_cutoff` → open + 120 as a one-line hygiene edit, with no research claim attached.** `config/config.nq.yaml:30` "15:30" → "11:30"; `config.yaml`/`duka`/`ftmo` "17:00" → "11:00"; `tools/markets.py:313` `hm(cl)-30` → `hm(op)+120` (derive it, do not hand-maintain the string — `clock.py:101-104` already localises per calendar day, so DST safety is real). It aligns the second entry with the first and with [07:29] *"не открываю и не добираю"*. **Measured effect: 9 of 349 NQ trades, +0.0011R, DD 10.30R → 10.22R, DD-per-trade unchanged at 0.030, and DAX DD *rises* 24.81R → 25.31R. Prior that it helps: ~0.** Do it for tidiness, spend no validation run and no holdout look on it.
+
+**Explicitly not worth a run:** anything derived from open-vs-value-area, Open Drive vetoes, zone-proximity or first-touch gates, target-reachability ratios, or gap thresholds. All measured, all showing the same `%trades removed ≈ %losses removed` signature that killed 29 of the 30 pre-specified Market Profile cells, several with the sign flipping between NQ and DAX on n<10.
+
+---
+
+## D. WHAT THE VIDEO DOES NOT CONTAIN
+
+**This is the real finding.** Every gate that would do work is an eyeball judgement, and he says so himself at [11:57].
+
+**Thresholds he never states:** the gap size that makes a gap "large"; the IB width that is "anomalously large"; what makes an open an "aggressive impulse"; what stop distance is "too wide" (said five separate times — [27:56], [28:00], [33:52], [37:14], [68:29] — never once with a number or a ratio); how deep the counter-move must be for an ORR to be "confirmed" [33:23]; the tolerance band for "on the boundary of balance" ([08:19] *"либо на границе"*, [66:39] *"можно даже не доезжать к VA LOW"*); the value-area percentage that defines "баланс" at all — and at [66:25] he allows it may be formed *within* the previous day, so it may not even be a one-day object; the fractal definition (bars either side); what "закреп" requires (bars, closes, time); how near a level counts as "nearby" [37:00]; the band half-width for a zone contact; the partial-close fraction; the premium/discount lookback; the body/range ratio for a "полнотелая свеча" (and he downgrades it to *"a bonus"*); **and the Initial Balance length itself.**
+
+**Whole categories absent from 76 minutes:** no news, FOMC, CPI, NFP, calendar or holiday rule (grep for новост / отчет / ФРС / нонфарм / инфляция returns nothing); no day-of-week rule; no volatility-regime rule beyond eyeballing IB width; no re-entry, add-on, averaging or scaling rule; no breakeven, trail or partial-profit mechanic (zero occurrences of безубыток / трейл / подтянуть / переставить in 1818 lines); no position sizing, % risk or daily loss limit; **no per-type win rate or sample size anywhere** — so his numbers cannot be checked against our finding that ORR occurs on 21 of 906 NQ sessions, because he never reports OTD and ORR separately.
+
+**The artefact that would settle it is never shown.** He promises the trade-by-trade Notion tables twice ([12:27] *"вы увидите на бэктесте"*, slide 05/06 *"ссылки на результаты бектестов будут загружены после стрима"*). Every frame from 1 to 305 was scanned: no spreadsheet, no trade list, no equity curve appears at any point. The discretionary part of the system — the part that produces the 76.4% — is not verifiable from this recording.
+
+---
+
+## E. BOTTOM LINE
+
+**No. There is nothing here a mechanical tester should expect to pay off, and specifically nothing that rejects trades and cuts drawdown.**
+
+The reason is structural, not a failure of the first reading. The second pass was thorough — full transcript read end to end by multiple passes, native-resolution frames pulled and upscaled where the 1280px stills were illegible, the entire 7-page slide deck transcribed, every rejection verb grepped in Russian. It produced 16 distinct rejection candidates. **Twelve died**, most of them on measurement rather than argument, and eleven died with the *same* signature: they remove losses at the same rate they remove trades, they raise drawdown as often as they lower it, and their sign flips between NQ and DAX on sub-30-trade subsamples. **Three are not specifiable** — the decision variable does not exist in the source. **One survived review and was then measured to move expectancy by 0.0011R.**
+
+There is no drawdown-reducing filter in this recording because there is no *quantified* rejection in this recording. The one relative threshold he states — two hours from the open — was already in production, derived, DST-safe, at `tools/markets.py:312`, before anyone watched the video.
+
+**What the second reading did add, all of it negative and all of it worth keeping in the record:**
+- The headline was mis-scoped: 76.4% is fDAX-only 2024; the NQ comparable is 70.8% on 72 trades. Our 55.6% was measured against the wrong number.
+- His own NQ table refutes him: 70.8 / 37.5 / 22.2% against driftless floors of 50 / 40 / 33.3%. Below breakeven at both higher multiples. That is not a directional edge decaying — that is a 1R hit rate propped up by hindsight stop placement.
+- The method is admitted as manual, contextual, ~6 evenings, with *"гибкая постановка SL (в зависимости от контекста)"* printed on the slide.
+- His scoring was *harsher* than ours (unresolved at close = full loss), which removes the last benign explanation for the gap.
+- Two mechanical differences remain untested — stop at the opposite IB edge, and the 110-trade extension leg. Priors 20% and 15%. Run them once, in four cells each, on NQ and DAX only, against the frozen 2025-03 holdout.
+
+Then close the video. It is a sixth edgeless strategy, and the honest summary is that the source never contained the parameters that would have made it a strategy at all.
+
+**Files touched for verification:** `C:\Users\i.kalchenko\source\repos\IK\trading-bot\config\config.nq.yaml` (lines 29–30), `C:\Users\i.kalchenko\source\repos\IK\trading-bot\tools\markets.py` (lines 312–313), `C:\Users\i.kalchenko\source\repos\IK\trading-bot\src\tradingbot\strategy\retest.py` (lines 229–232), transcript at `C:\Users\I3A08~1.KAL\AppData\Local\Temp\claude\c--Users-i-kalchenko-source-repos-IK-trading-bot\0469be3f-2d1c-45ed-86c3-16897f67800c\scratchpad\iborrotd_transcript.txt`.

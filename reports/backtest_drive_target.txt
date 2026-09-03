@@ -1,0 +1,125 @@
+===== THE DRIVE MODEL'S TARGET, AND THE COLUMN I DID NOT READ =====
+
+Twelve angles of external search produced 340 candidates, 20 mechanised
+specifications and 20 kills. Zero survivors from the Market Profile tradition.
+The completeness critic then pointed out that a parameter of our OWN model had
+never been swept, and that the table showing it had been printed in
+tools/validate_drive.py since the model was built:
+
+    2.0R  DD 12.1R      <- the live setting
+    2.5R  DD  7.2R
+    3.0R  DD  6.8R
+
+I printed that drawdown column and did not read it. Ninety minutes of sweeping
+it beat twelve search angles.
+
+--- THE FULL SWEEP, FUTURES COST (0.50 points) ---
+  target      n      WR    PF     expR   CI lo   DD_R    R/mo    MAR   trim20      IS     OOS   hit  close
+  1.0R      906   52.6%  1.08  +0.0357 -0.0256   13.1  +0.735   0.67  +0.0140 +0.0395 +0.0303   44%   14%
+  2.0R      906   44.9%  1.18  +0.0891 +0.0092   12.1  +1.835   1.82  +0.0460 +0.0672 +0.1206   22%   31%
+  2.5R      906   43.6%  1.21  +0.1099 +0.0236    7.2  +2.264   3.78  +0.0561 +0.1123 +0.1066   16%   35%
+  3.0R      906   42.8%  1.23  +0.1194 +0.0283    6.8  +2.459   4.35  +0.0545 +0.1410 +0.0885   11%   39%
+  3.5R      906   42.3%  1.24  +0.1287 +0.0334    7.3  +2.651   4.33  +0.0527 +0.1546 +0.0916    9%   41%
+  4.0R      906   41.5%  1.21  +0.1141 +0.0168   11.6  +2.349   2.42  +0.0265 +0.1431 +0.0725    7%   43%
+  no cap    906   40.4%  1.21  +0.1122 +0.0022   19.0  +2.310   1.46  -0.0451 +0.1593 +0.0446    0%   49%
+
+--- PROP CFD COST (2.13 points), which is where it matters most ---
+  2.0R      906   44.7%  1.12  +0.0625 -0.0174   19.9  +1.287   0.77  +0.0191
+  2.5R      906   43.4%  1.16  +0.0833 -0.0030   11.3  +1.716   1.83  +0.0292
+  3.0R      906   42.5%  1.17  +0.0928 +0.0018    7.8  +1.911   2.95  +0.0277
+  3.5R      906   41.9%  1.19  +0.1021 +0.0069    8.5  +2.103   2.97  +0.0259
+  no cap    906   40.1%  1.15  +0.0856 -0.0244   20.9  +1.763   1.01  -0.0712
+
+At the cost a prop account actually pays, the LIVE 2.0R setting has a lower
+bound BELOW zero (-0.0174) and 3.0R clears it (+0.0018). That alone changes
+whether this model is tradeable on the account we would trade it on.
+
+--- WHY THIS IS NOT THE "LET WINNERS RUN" ILLUSION ---
+Twenty-two trailing and give-back exit variants have been measured in this
+project across two legs, and every single one went NEGATIVE on trim20 - delete
+the twenty best trades and the edge was gone, because it lived in a handful of
+runners. This does the opposite:
+
+  trim20:   2.0R +0.0460   2.5R +0.0561   3.0R +0.0545   3.5R +0.0527
+            no cap -0.0451
+
+Removing the target ENTIRELY is decisively worse on every column - drawdown
+19.0R, trim20 negative. So the effect is an INTERIOR PLATEAU, not an
+unbounded-upside artefact, and 2.5/3.0/3.5 sit flat at drawdown 7.2/7.3/6.8.
+3.0R is chosen as the middle of that plateau, not as the best cell; 3.5R is
+nominally better on expectancy and the difference is noise.
+
+--- BOTH HALVES, AND EVERY YEAR ---
+  2.0R (live)  by year: 23:-0.025  24:+0.156  25:+0.144  26:+0.079
+               drawdown in-sample 12.1R, out-of-sample 9.1R
+  3.0R         by year: 23:+0.075  24:+0.203  25:+0.115  26:+0.066
+               drawdown in-sample  4.1R, out-of-sample 6.8R
+
+The drawdown improves in BOTH halves, and 2023 - the model's only losing year
+and its single documented flaw - turns from -0.025R to +0.075R.
+
+Random-side null at 3.0R, same days, same stops, same exit machinery: -0.0806R.
+The real model is 4.3 sigma above it.
+
+===== WHERE I CORRECT THE RESEARCH AGENT =====
+
+The synthesis reported the paired quarterly bootstrap of the drawdown change as
+"median -4.1R, 95% [-15.4, +1.0], P(3.0R worse) = 5.4%". My own run, 3000 draws,
+both arms resampled on the SAME quarters:
+
+    median -3.31R   95% [-17.08, +6.00]   P(3.0R has the WORSE drawdown) = 21.5%
+
+That is a materially weaker result than reported, and the confidence interval
+crosses zero by a wide margin. The drawdown improvement is DIRECTIONALLY
+supported and NOT statistically established: roughly one chance in five that
+3.0R actually has the worse drawdown. Do not quote the 5.4%.
+
+Everything else in the synthesis replicated: the plateau, the no-cap control,
+the trim20 direction, the CFD-cost crossover, both-halves drawdown, 2023
+turning positive, and the paired per-trade test.
+
+===== THE HONEST HAZARDS =====
+1. THE EXPECTANCY GAIN IS NOT SIGNIFICANT. Paired on the same days,
+   +0.0303R with t = 1.57, and the outcome changes on only 22% of trades.
+2. OUT-OF-SAMPLE EXPECTANCY FALLS: +0.1206 at 2.0R against +0.0885 at 3.0R.
+   The IS/OOS pattern is reversed from the drawdown. Adopt this for the
+   drawdown and budget NOTHING for the return.
+3. MORE WEIGHT ON THE CLOSE PRINT. Target hits fall from 22% of trades to 11%,
+   and trades resolving at the 15:55 close rise from 31% to 39%. The equity
+   curve leans harder on one print per day, and on whatever difference exists
+   between a CFD close and a futures settlement.
+4. WIN RATE FALLS 44.9% to 42.8%. Psychologically this is a harder model to
+   trade by hand, on top of an already low win rate.
+5. Six targets plus a control were compared. The plateau and the control are
+   what make this more than a best-cell pick, not the individual numbers.
+
+===== WHAT IT DOES TO THE PORTFOLIO, WHICH IS THE ACTUAL BRIEF =====
+  drive target      R/mo    DD_R    MAR   R/mo at a 10R drawdown budget
+  2.0R            +1.408    3.80   4.45        +3.706
+  3.0R            +1.616    3.48   5.58        +4.647
+
+Three legs - retest, IB confluence, drive - with drive at 3.0R reach +4.65 R/mo
+against a 10R drawdown budget. The brief asked for 3-6R monthly at 10R. Two
+sessions ago the answer was that this needed about five uncorrelated legs and we
+had two and a half. It is now met with three, in the middle of the stated range,
+by changing one number that was already in our own output.
+
+===== THE LESSON, WHICH IS ABOUT METHOD =====
+tools/filters.py is a boolean mask over a fixed vector of trade outcomes. It
+cannot express any rule that MUTATES an outcome rather than deleting a trade.
+Every proposal in the last two sessions was therefore shaped as an entry gate -
+twenty of them, all killed with the same signature, %trades removed equal to
+%losses removed - while the exit surface of the newest and largest leg sat
+unswept because the harness could not ask about it.
+
+The twenty kills are one finding, not twenty: the drive model's losers are not
+identifiable at 10:00 from any session statistic - profile, volatility, volume,
+width or location. Stop testing members of that class. The next harness needs to
+accept an outcome-mutating rule and report drawdown, trim20 and a paired
+bootstrap against a named benchmark.
+
+Also recorded, from the search: the 76.4% open-type win rate this project has
+been quoting as the claim it refuted has NO TRACEABLE SOURCE across twelve
+search angles. Our closed findings should be stated against the measured
+baselines instead - a clean drive-direction day runs at 49.3% on NQ and 43.1%
+on DAX.
