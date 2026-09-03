@@ -1,0 +1,127 @@
+===== THE THREE LEGS: HOW OFTEN THEY TRADE AND WHAT THEY PAY =====
+
+NQ, 44 months, 2023-01 to 2026-08, 906 sessions. Drive at its new 3.0R target.
+Reported at both cost levels, because on this portfolio they give different
+answers about whether two of the three legs are tradeable at all.
+
+Two denominators are stated up front, because both have been confused before:
+  RISK. The combined rows split the risk equally across the enabled legs, so
+  their R figures are directly comparable with the single-leg rows. "1% total"
+  means 0.33% per leg, not 1% per leg.
+  RATE. Trades per month, not per session. The legs fire at very different
+  rates and the retest leg skips most days.
+
+========================= FUTURES COST (0.50 points) =========================
+
+  leg                      trades  per mo     WR    PF     expR   CI lo    R/mo   DD_R   MAR   +mo   best  worst
+  1 retest (M1, 1R)           326     7.4  56.1%  1.38  +0.1567 +0.0465  +1.161    8.3  1.68   61%   +6.0   -5.1
+  2 IB confluence (1.5R)      744    16.9  50.8%  1.19  +0.0726 +0.0050  +1.228    9.2  1.60   59%   +9.9   -5.5
+  3 drive (30min, 3R)         906    20.6  42.8%  1.23  +0.1194 +0.0283  +2.459    6.8  4.35   64%  +16.4   -6.8
+
+  combined, risk split      trades  per mo                                  R/mo   DD_R   MAR   +mo   best  worst
+  1+2                        1070    24.3                                +1.194    5.1  2.83   68%   +5.7   -2.6
+  1+3                        1232    28.0                                +1.810    4.4  4.96   70%   +9.7   -3.6
+  2+3                        1650    37.5                                +1.844    5.3  4.19   73%  +12.4   -5.3
+  all three                  1976    44.9                                +1.616    3.5  5.58   66%   +9.3   -3.5
+
+  monthly correlation, mean pairwise +0.19
+                   retest  confluence  drive
+  retest             1.00        0.03   0.11
+  confluence         0.03        1.00   0.44
+  drive              0.11        0.44   1.00
+
+  MONEY, all three legs, risk split so each leg takes a third
+  total risk per 1R    R/mo   %/year  max DD %  worst month %
+  0.5% total         +1.616    +10.0       1.7           -1.7
+  1.0% total         +1.616    +20.7       3.5           -3.5
+  1.5% total         +1.616    +32.2       5.2           -5.2
+  2.0% total         +1.616    +44.3       7.0           -6.9
+  3.0% total         +1.616    +70.8      10.4          -10.4
+
+  each leg alone at 0.6% per 1R, for comparison
+  1 retest            +1.161     +8.5       4.9
+  2 IB confluence     +1.228     +8.9       5.4
+  3 drive             +2.459    +18.6       4.1
+  all three (split)   +1.616    +12.1       2.1
+
+  R per calendar year          2023      2024      2025      2026
+  1 retest                    +21.4      +8.4      +2.5     +18.8
+  2 IB confluence              -1.0     +29.5     +25.4      +0.2
+  3 drive                     +18.5     +50.4     +28.3     +11.0
+  all three (split)           +12.9     +29.4     +18.7     +10.0
+
+  IS -> OOS expectancy: retest +0.149 -> +0.168, confluence +0.074 -> +0.071,
+                        drive  +0.141 -> +0.088
+
+======================== PROP CFD COST (2.13 points) ========================
+
+  leg                      trades  per mo     WR    PF     expR   CI lo    R/mo   DD_R   MAR
+  1 retest (M1, 1R)           326     7.4  54.9%  1.25  +0.1131 +0.0003  +0.838   10.0  1.01
+  2 IB confluence (1.5R)      744    16.9  50.4%  1.15  +0.0565 -0.0112  +0.956   11.7  0.98
+  3 drive (30min, 3R)         906    20.6  42.5%  1.17  +0.0928 +0.0018  +1.911    7.8  2.95
+
+  combined, risk split                                                     R/mo   DD_R   MAR
+  1+2                        1070    24.3                                +0.897    5.8  1.87
+  1+3                        1232    28.0                                +1.375    6.2  2.67
+  2+3                        1650    37.5                                +1.434    6.2  2.78
+  all three                  1976    44.9                                +1.235    4.9  3.05
+
+  MONEY, all three legs
+  0.5% total         +1.235     +7.6       2.4
+  1.0% total         +1.235    +15.4       4.8
+  1.5% total         +1.235    +23.5       7.3
+  2.0% total         +1.235    +31.9       9.7
+  3.0% total         +1.235    +49.5      14.5
+
+  R per calendar year          2023      2024      2025      2026
+  1 retest                    +15.3      +6.5      -3.2     +18.3
+  2 IB confluence              -5.0     +25.8     +22.4      -1.1
+  3 drive                      +9.7     +42.6     +23.1      +8.6
+  all three (split)            +6.7     +25.0     +14.1      +8.6
+
+============================ WHAT TO READ FROM IT ============================
+
+1. THE COST LEVEL DECIDES WHICH LEGS EXIST. At futures cost all three clear
+   zero. At prop CFD cost the IB confluence leg does NOT (lower bound -0.0112)
+   and the retest leg only barely does (+0.0003). Only drive is comfortable
+   (+0.0018 on a much larger sample, and it was the leg most improved by the
+   3.0R change). On a CFD account this is closer to a one-and-a-half leg
+   portfolio than a three-leg one.
+
+2. DRIVE IS NOW THE LARGEST LEG BY EVERY MEASURE - 906 trades, +2.459 R/mo
+   alone, MAR 4.35 - and that is a change from a week ago, caused entirely by
+   the target sweep. It is also the leg with the WORST out-of-sample story
+   (+0.141 in-sample against +0.088 out), which is the reason its 3.0R target
+   was adopted for the drawdown and not for the return.
+
+3. THE COMBINATION STILL BEATS ITS PARTS, but less impressively than before,
+   because confluence and drive now correlate +0.44 - they share the session
+   open structure. Retest against drive is +0.11 and retest against confluence
+   +0.03, so the retest leg is doing most of the diversification work despite
+   being the smallest.
+   Note 1+3 alone: MAR 4.96 with R/mo +1.810, against 5.58 and +1.616 for all
+   three. The third leg buys drawdown, not return - the same conclusion the
+   scaling work reached, now with different legs.
+
+4. TRADE FREQUENCY IS HIGH: 45 trades a month across the portfolio, roughly two
+   per session. That is a very different operational load from the retest leg
+   alone at 7 a month, and it matters for a manual trader - drive and confluence
+   both take something almost every session.
+
+5. THE HONEST MONEY ANSWER. At 1% total risk and futures cost: +20.7% a year
+   with a 3.5% maximum drawdown, measured. At 2% total: +44.3% with 7.0%. At
+   prop CFD cost the same rows read +15.4%/4.8% and +31.9%/9.7%.
+   A 2% total risk on a CFD account puts the historical maximum drawdown at
+   9.7% against a 10% limit, which is too close: a historical maximum is a
+   floor on the future one, not a ceiling. 1.0-1.5% total is the defensible
+   range, giving +15-24% a year at a 5-7% drawdown.
+
+6. WORST MONTH is -3.5R combined at futures cost, against -5.1, -5.5 and -6.8
+   for the legs alone. At 1% total risk that is a 3.5% month. Four of ten
+   months are still losers on every leg.
+
+CAVEATS THAT DO NOT SHRINK: NQ only - none of these models is positive on the
+other six index markets. NDXUSD is a CFD proxy, not the NQ future. Slippage is
+assumed at one tick and has never been measured on a live account. And drive's
+3.0R target was adopted on a drawdown improvement whose paired bootstrap gives
+a 21.5% chance the drawdown is actually worse.
