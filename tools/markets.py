@@ -330,7 +330,7 @@ def model_retest(symbol: str, cost: float) -> pd.Series:
     return pd.Series(res, dtype=float)
 
 
-def model_drive(symbol: str, cost: float, rr: float = 2.0, n_bars: int = 6) -> pd.Series:
+def model_drive(symbol: str, cost: float, rr: float = 3.0, n_bars: int = 6) -> pd.Series:
     """Dalton with the classification deleted - trade the drive on EVERY session.
 
     This began as the null model for model_dalton and outlived it. If sorting
@@ -341,6 +341,16 @@ def model_drive(symbol: str, cost: float, rr: float = 2.0, n_bars: int = 6) -> p
 
     It is intraday momentum, which is a published and independently replicated
     effect rather than anything found here - a point in its favour, not against.
+
+    The target defaults to 3.0R, changed from 2.0R after tools/drivetarget.py
+    swept it: drawdown 12.1R -> 6.8R, better in both halves, 2023 turned
+    positive, and at prop CFD cost the 2.0R lower bound is negative while 3.0R
+    clears zero. Adopted for the DRAWDOWN only - the expectancy gain is not
+    significant (paired t = 1.57) and out-of-sample expectancy actually falls.
+    3.0R is the middle of a flat 2.5-3.5 plateau, not the best cell, and
+    removing the target entirely is decisively worse, which is what makes this
+    an interior optimum rather than the outlier-carried illusion that killed 22
+    trailing variants. See reports/backtest_drive_target.txt.
     """
     sess, _ = _sessions(symbol)
     o = hm(MARKETS[symbol][2])
