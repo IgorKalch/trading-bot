@@ -231,3 +231,62 @@ Thirty-seven pre-specified cells across three models. Zero filters that both
 separate winners from losers and beat the unfiltered MAR. The family is closed,
 and it is now closed on its own preferred ground - the mechanisms the source
 itself names, not just the ones we thought to try.
+
+===== THE VIDEO'S TIMING RULE IS BACKWARDS, MONOTONICALLY =====
+
+The 460 findings from the second reading contain one class of rule the
+thirty-seven filter cells could not reach, because it is not a filter:
+
+  [07:09] "within the first two hours we get the main move in most cases ...
+          after two hours of the open forming I skip all subsequent work and no
+          longer open or add anything inside the session"
+  [56:11] "usually I looked within the backtest up to one o'clock"
+
+Our drive model holds to 15:55. If the move really is spent by late morning, a
+shorter hold should keep the return and shed the drawdown. It costs no trades,
+so it is the cleanest comparison available anywhere in this investigation.
+
+  exit at          n     WR    PF     expR   CI lo   DD_R    R/mo    MAR   trim20      IS     OOS
+  10:30 (+1h)    906  49.7%  1.04  +0.0126 -0.0397   14.2  +0.259   0.22  -0.0321 +0.0235 -0.0032
+  11:00 (+1h30)  906  47.0%  1.09  +0.0366 -0.0267   14.5  +0.753   0.62  -0.0076 +0.0357 +0.0378
+  11:30 (+2h)    906  46.9%  1.11  +0.0478 -0.0200   12.3  +0.984   0.96  +0.0038 +0.0553 +0.0370
+  12:00 (+2h30)  906  46.4%  1.11  +0.0488 -0.0216   10.8  +1.004   1.12  +0.0048 +0.0617 +0.0302
+  12:30 (+3h)    906  45.9%  1.14  +0.0609 -0.0115   13.5  +1.254   1.12  +0.0172 +0.0605 +0.0615
+  13:00 (+3h30)  906  45.9%  1.15  +0.0684 -0.0054   14.3  +1.408   1.18  +0.0249 +0.0654 +0.0727
+  13:30 (+4h)    906  45.9%  1.15  +0.0689 -0.0061   13.0  +1.419   1.31  +0.0254 +0.0700 +0.0674
+  15:00 (+5h30)  906  44.9%  1.16  +0.0770 -0.0016   16.6  +1.586   1.15  +0.0337 +0.0626 +0.0977
+  15:55 (close)  906  44.9%  1.18  +0.0891 +0.0092   12.1  +1.835   1.82  +0.0460 +0.0672 +0.1206
+
+Expectancy rises MONOTONICALLY with the length of the hold, from +0.0126 at one
+hour to +0.0891 at the close, and the full-session hold is the ONLY row whose
+lower bound clears zero. MAR climbs the same way, 0.22 to 1.82. trim20 is
+NEGATIVE for every exit before 11:30, meaning that on a short hold the entire
+return is a handful of lucky runners. Both halves of the sample agree.
+
+A monotone curve across nine cut-offs is far stronger evidence than any single
+threshold, and it points the opposite way to the source: for this model the move
+is not spent in two hours. More than half the edge accrues after 13:30 - exactly
+the period the presenter says to ignore and the period his own backtest
+excluded. Anyone measuring this setup with a 13:00 cut-off was measuring a
+materially worse strategy than the one available, which is one more reason his
+85-trade sample cannot be compared with ours.
+
+--- AND HIS TWO REJECTION CLAIMS SHOW NO GRADIENT ---
+  [13:02] "everything that opened with an aggressive impulse I also tried to skip"
+  [11:57] "if the Initial Balance range was abnormally large ... I could skip"
+
+Both predict that a bigger opening move is worse. Tested as dose-responses on
+quintiles rather than thresholds:
+
+  how far the window drove   +0.092  +0.039  +0.120  +0.116  +0.094   rho +0.50
+  how wide the window ranged +0.030  +0.073  +0.191  +0.156  +0.012   rho -0.10
+
+Neither shows a gradient. The claims carry nothing.
+
+--- RUNNING COUNT ---
+Thirty-nine pre-specified cells plus a nine-point hold-time curve, across three
+models. Still no filter that both separates winners from losers and beats the
+unfiltered MAR. What the timing test did establish is not a gain but a
+confirmation with teeth: holding to the close, which the model already does, is
+correct by a monotone margin, and the source's advice would have cost roughly
+two thirds of the edge.
