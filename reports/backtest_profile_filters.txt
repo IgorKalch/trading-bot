@@ -166,3 +166,68 @@ survive the first test that could distinguish a relationship from a threshold.
 
 Both families are closed. Market Profile structure carries nothing on these
 models, and neither does trailing volatility.
+
+===== SEVEN MORE CELLS, FROM THE VIDEO ITSELF: PATH AND BALANCE =====
+
+The first re-reading of TO_IB/iborrotd.mp4 produced 219 timestamped findings,
+and two of them describe mechanisms none of the thirty earlier cells tested.
+Both are about something other than where the session opened.
+
+  [54:18] "we can get an open rejection reverse which leads us to the balance of
+          the PREVIOUS DAY - and I get a stop. Logical, right?"
+          A claim about the PATH: a trade that must travel through a zone where
+          a lot of time was already spent does not get through.
+  [68:01] "while price opens inside the balance, in most cases it's a skip."
+          Balance here means what Dalton means - an area several sessions agree
+          on - so it is built as the overlap of the last three value areas, not
+          as one session's value area.
+
+  NQ / drive: 906 trades, +0.0891R, drawdown 12.1R, MAR 1.82
+  filter                          kept  %tr %loss     WR    PF     expR   DD_R   MAR      IS     OOS
+  (unfiltered)                     906  100   100  44.9%  1.18  +0.0891  12.1  1.82  +0.067  +0.121
+  path CLEAR of prior POC          688   76    78  43.6%  1.14  +0.0707  12.1  1.10  +0.050  +0.101
+  path BLOCKED by prior POC        218   24    22  49.1%  1.31  +0.1470   8.0  1.10  +0.124  +0.179
+  path CLEAR of prior value area   509   56    57  44.0%  1.14  +0.0705  12.1  0.81  +0.070  +0.071
+  prior POC behind the stop        216   24    21  46.3%  1.21  +0.0931  12.8  0.44  +0.052  +0.141
+  open NOT inside a 3-day balance  895   99    99  45.0%  1.18  +0.0892  13.6  1.60  +0.069  +0.119
+  open inside a 3-day balance       11  -- too few to test
+  a 3-day balance exists at all    149   16    19  37.6%  0.93  -0.0401  16.1 -0.10  -0.086  +0.040
+
+--- THE CLAIM IS INVERTED, NOT MERELY UNSUPPORTED ---
+A path BLOCKED by yesterday's point of control returns +0.1470R against +0.0707R
+for a clear path - twice as good, with a win rate of 49.1% against 43.6% and a
+drawdown of 8.0R against 12.1R. The presenter has the sign backwards. The point
+of control behaves as a MAGNET that helps a trade reach its target, not as a
+barrier that stops it.
+
+That said, it is not tradeable either: the lower bound is -0.0148, so it does
+not clear zero, and MAR falls from 1.82 to 1.10 because keeping only a quarter
+of the sessions cuts R/mo from +1.835 to +0.728. An inverted claim that still
+does not pay is a finding about the source, not a filter.
+
+--- THE BALANCE RULE DESCRIBES ALMOST NO SESSIONS ---
+Under a mechanical three-session-overlap definition, a balance zone exists on
+16% of sessions and the open falls inside it on 1% - eleven trades in four
+years. This is the same failure as ORR, which occurs on 21 of 906 sessions. Both
+rules sound like they carve up the year and both refer, once made mechanical, to
+a configuration that barely happens. That is the most consistent pattern in this
+whole investigation: the video's vocabulary describes conditions far rarer than
+its confident tone implies, which is exactly how a discretionary method produces
+an 85-trade sample with a 76.4% win rate.
+
+--- THE ONE THEORY-CONSISTENT CELL FLIPS OUT OF SAMPLE ---
+The single cell with the right sign for the right reason is "a 3-day balance
+exists at all": a momentum model should do badly when the market is balanced,
+and it reads -0.0401R on 149 trades against roughly +0.115R on the rest. It is
+also the first cell in the whole family where the loss share exceeds the trade
+share (19% against 16%), which is the direction a real filter points.
+
+It dies on the split: in-sample -0.086, out-of-sample +0.040. An effect that
+changes sign between halves is not an effect, and at 1.5 sigma from a family of
+37 cells it was never going to survive anyway.
+
+--- RUNNING COUNT ---
+Thirty-seven pre-specified cells across three models. Zero filters that both
+separate winners from losers and beat the unfiltered MAR. The family is closed,
+and it is now closed on its own preferred ground - the mechanisms the source
+itself names, not just the ones we thought to try.

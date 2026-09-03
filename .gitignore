@@ -35,3 +35,4 @@ reports/*
 .ruff_cache/
 .coverage
 htmlcov/
+.wf/
